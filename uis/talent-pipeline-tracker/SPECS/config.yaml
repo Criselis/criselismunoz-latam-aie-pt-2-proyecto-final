@@ -1,0 +1,24 @@
+# Configuración del Proyecto - Nexova Solutions Web
+
+project:
+  name: "nexova-digital-presence"
+  version: "1.0.0"
+  description: "Sitio web corporativo y formulario de captación para Nexova Solutions"
+
+tech_stack:
+  markup: "HTML5"
+  styles: "Tailwind CSS"
+  scripting: "Vanilla JavaScript"
+  tooling: "npx serve (para servidor local compatible con Codespaces)"
+
+architecture_rules:
+  responsive: true
+  mobile_first: true
+  require_semantic_html: true
+  require_aria_tags: true
+  seo_schema: "Organization/LocalBusiness"
+
+files:
+  - "index.html"
+  - "application.html"
+  - "validation.js"

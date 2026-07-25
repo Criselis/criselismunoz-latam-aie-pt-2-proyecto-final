@@ -1,89 +1,90 @@
 /**
- * Nexova Solutions – Form Validation
+ * Nexova – Talent Form Validation
  * Validates all fields in real-time (on blur and while typing)
  * and prevents submission if errors exist.
+ * Implements exact error messages and validation rules per the spec.
  */
 
 (function () {
   'use strict';
 
-  const form = document.getElementById('application-form');
+  const form = document.getElementById('talent-form');
   if (!form) return;
 
   // ===== RULES =====
   const rules = {
     fullName: {
       validate(value) {
-        if (!value.trim()) return 'El nombre completo es obligatorio.';
-        if (value.trim().length < 3) return 'El nombre debe tener al menos 3 caracteres.';
-        if (!/^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s'-]+$/.test(value.trim())) return 'El nombre solo puede contener letras y espacios.';
+        if (!value.trim()) return 'El nombre debe contener al menos nombre y apellido';
+        const words = value.trim().split(/\s+/);
+        if (words.length < 2) return 'El nombre debe contener al menos nombre y apellido';
         return '';
       }
     },
     email: {
       validate(value) {
-        if (!value.trim()) return 'El correo electrónico es obligatorio.';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return 'Introduce un correo electrónico válido.';
+        if (!value.trim()) return 'Ingresa un email válido (ejemplo: nombre@empresa.com)';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return 'Ingresa un email válido (ejemplo: nombre@empresa.com)';
         return '';
       }
     },
     phone: {
       validate(value) {
-        if (!value.trim()) return 'El teléfono es obligatorio.';
-        const cleaned = value.replace(/[\s\-().+]/g, '');
-        if (!/^\d{7,15}$/.test(cleaned)) return 'Introduce un número de teléfono válido (7-15 dígitos).';
+        if (!value.trim()) return 'El teléfono debe incluir código de país (ejemplo: +34 612 345 678)';
+        if (!/^\+/.test(value.trim())) return 'El teléfono debe incluir código de país (ejemplo: +34 612 345 678)';
         return '';
       }
     },
-    birthdate: {
+    country: {
       validate(value) {
-        if (!value) return 'La fecha de nacimiento es obligatoria.';
-        const date = new Date(value);
-        const now = new Date();
-        const age = (now - date) / (1000 * 60 * 60 * 24 * 365.25);
-        if (age < 16) return 'Debes tener al menos 16 años para aplicar.';
-        if (age > 75) return 'La fecha ingresada no parece correcta.';
-        return '';
-      }
-    },
-    city: {
-      validate(value) {
-        if (!value.trim()) return 'La ciudad es obligatoria.';
-        if (value.trim().length < 2) return 'Introduce el nombre de tu ciudad.';
-        return '';
-      }
-    },
-    area: {
-      validate(value) {
-        if (!value) return 'Selecciona un área de interés.';
+        if (!value) return 'Selecciona tu país de residencia';
         return '';
       }
     },
     experience: {
       validate(value) {
-        if (value === '') return 'Los años de experiencia son obligatorios.';
+        if (value === '') return 'Los años de experiencia deben estar entre 0 y 50';
         const num = Number(value);
-        if (!Number.isInteger(num) || num < 0) return 'Introduce un número válido.';
-        if (num > 50) return 'El número de años no puede superar 50.';
+        if (!Number.isInteger(num) || num < 0 || num > 50) return 'Los años de experiencia deben estar entre 0 y 50';
+        return '';
+      }
+    },
+    sector: {
+      validate(value) {
+        if (!value) return 'Selecciona el sector de tu interés';
+        return '';
+      }
+    },
+    englishLevel: {
+      validate(value) {
+        if (!value) return 'Indica tu nivel de inglés';
         return '';
       }
     },
     availability: {
       validate(value) {
-        if (!value) return 'Selecciona tu disponibilidad.';
+        if (!value) return 'Selecciona tu disponibilidad';
         return '';
       }
     },
-    coverLetter: {
+    linkedin: {
       validate(value) {
-        if (!value.trim()) return 'La carta de motivación es obligatoria.';
-        if (value.trim().length < 50) return `Debes escribir al menos 50 caracteres. Actualmente tienes ${value.trim().length}.`;
+        if (!value.trim()) return ''; // optional field
+        if (!/^https?:\/\//.test(value.trim())) return 'Si incluyes LinkedIn, debe ser una URL válida';
+        return '';
+      }
+    },
+    comments: {
+      validate(value) {
+        if (value.length > 500) {
+          return 'Los comentarios no pueden exceder 500 caracteres';
+        }
         return '';
       }
     },
     privacy: {
       validate(checked) {
-        if (!checked) return 'Debes aceptar la política de privacidad para continuar.';
+        if (!checked) return 'Debes aceptar la política de tratamiento de datos para continuar';
         return '';
       }
     }
@@ -102,6 +103,13 @@
       inputEl.classList.add('bg-red-50');
       inputEl.setAttribute('aria-invalid', 'true');
     }
+    // Handle radio buttons separately
+    if (fieldId === 'availability') {
+      const radios = document.querySelectorAll('input[name="availability"]');
+      radios.forEach(r => {
+        r.classList.add('border-red-500');
+      });
+    }
   }
 
   function clearError(fieldId) {
@@ -116,21 +124,41 @@
       inputEl.classList.remove('bg-red-50');
       inputEl.removeAttribute('aria-invalid');
     }
+    // Handle radio buttons separately
+    if (fieldId === 'availability') {
+      const radios = document.querySelectorAll('input[name="availability"]');
+      radios.forEach(r => {
+        r.classList.remove('border-red-500');
+      });
+    }
+  }
+
+  function getFieldValue(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (!el) {
+      // For radio buttons, check by name
+      if (fieldId === 'availability') {
+        const checked = document.querySelector('input[name="availability"]:checked');
+        return checked ? checked.value : '';
+      }
+      return '';
+    }
+    if (el.type === 'checkbox') return el.checked;
+    if (el.type === 'radio') {
+      const name = el.name;
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      return checked ? checked.value : '';
+    }
+    return el.value;
   }
 
   function validateField(fieldId) {
-    const inputEl = document.getElementById(fieldId);
     const rule = rules[fieldId];
-    if (!inputEl || !rule) return true;
+    if (!rule) return true;
 
-    let value;
-    if (inputEl.type === 'checkbox') {
-      value = inputEl.checked;
-    } else {
-      value = inputEl.value;
-    }
-
+    const value = getFieldValue(fieldId);
     const error = rule.validate(value);
+
     if (error) {
       showError(fieldId, error);
       return false;
@@ -151,8 +179,18 @@
   }
 
   // ===== EVENT LISTENERS =====
-  // Real-time validation: on blur
   for (const fieldId in rules) {
+    // For availability (radio), attach to each radio button
+    if (fieldId === 'availability') {
+      const radios = document.querySelectorAll('input[name="availability"]');
+      radios.forEach(radio => {
+        radio.addEventListener('change', function () {
+          validateField('availability');
+        });
+      });
+      continue;
+    }
+
     const el = document.getElementById(fieldId);
     if (!el) continue;
 

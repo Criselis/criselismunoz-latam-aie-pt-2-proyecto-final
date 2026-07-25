@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexova Solutions - Formulario de Aplicación</title>
-  <meta name="description" content="Aplica para formar parte del equipo de talento de Nexova Solutions. Completa el formulario y nos pondremos en contacto contigo." />
+  <title>Nexova - Registro de Talento</title>
+  <meta name="description" content="Regístrate en el banco de talento de Nexova. Completa el formulario y nuestro equipo de selección te contactará cuando tu perfil encaje con alguna oportunidad." />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in {
@@ -23,7 +23,7 @@
   <!-- ===== HEADER ===== -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100" role="banner">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16" aria-label="Navegación principal">
-      <a href="index.html" class="flex items-center gap-2 text-xl font-bold text-indigo-700" aria-label="Nexova Solutions - Volver al inicio">
+      <a href="index.html" class="flex items-center gap-2 text-xl font-bold text-indigo-700" aria-label="Nexova - Volver al inicio">
         <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2" fill="none"/>
           <path d="M10 22V10h4l4 8 4-8h4v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -38,30 +38,39 @@
 
   <main class="flex-1">
     <!-- ===== HERO DEL FORMULARIO ===== -->
-    <section class="bg-gradient-to-br from-indigo-50 via-white to-blue-50 py-12 sm:py-16" aria-label="Encabezado del formulario">
+    <section class="bg-linear-to-br from-indigo-50 via-white to-blue-50 py-12 sm:py-16" aria-label="Encabezado del formulario">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 fade-in">Formulario de Aplicación</h1>
-        <p class="mt-4 text-lg text-gray-600 max-w-xl mx-auto fade-in">Completa los siguientes datos para que nuestro equipo de selección pueda evaluar tu perfil y contactarte.</p>
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 fade-in">Banco de Talento</h1>
+        <p class="mt-4 text-lg text-gray-600 max-w-xl mx-auto fade-in">Regístrate en nuestro banco de talento para que nuestro equipo de selección pueda evaluar tu perfil y contactarte cuando encaje con alguna de nuestras oportunidades.</p>
       </div>
     </section>
 
     <!-- ===== FORMULARIO ===== -->
-    <section class="py-10 sm:py-14" aria-label="Formulario de captación">
+    <section class="py-10 sm:py-14" aria-label="Formulario de registro de talento">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Aviso para empresas (si alguien viene a contratar servicios) -->
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 text-center" role="note" aria-label="Aviso para empresas">
+          <p class="text-amber-800 text-sm sm:text-base">
+            <strong>¿Eres una empresa buscando talento?</strong>
+            Escríbenos a <a href="mailto:contacto@nexova.com" class="text-indigo-700 font-semibold hover:underline">contacto@nexova.com</a>
+          </p>
+        </div>
 
         <!-- Mensaje de éxito (oculto por defecto) -->
         <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-2xl p-8 text-center mb-10" role="alert" aria-live="polite">
           <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
           </div>
-          <h2 class="text-2xl font-bold text-green-800">¡Solicitud enviada con éxito!</h2>
-          <p class="mt-2 text-green-700">Gracias por tu interés en Nexova Solutions. Nos pondremos en contacto contigo en las próximas 24 horas.</p>
+          <h2 class="text-2xl font-bold text-green-800">¡Gracias por tu interés en Nexova!</h2>
+          <p class="mt-2 text-green-700">Hemos recibido tu información. Nuestro equipo de selección la revisará y te contactaremos en caso de que tu perfil encaje con alguna de nuestras oportunidades actuales o futuras.</p>
+          <p class="mt-3 text-green-600 text-sm">Mientras tanto, síguenos en LinkedIn para estar al día de nuestras vacantes y contenido sobre desarrollo profesional.</p>
           <button type="button" onclick="resetForm()" class="mt-6 inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
             Enviar otra solicitud
           </button>
         </div>
 
-        <form id="application-form" class="space-y-8" novalidate aria-label="Formulario de aplicación">
+        <form id="talent-form" class="space-y-8" novalidate aria-label="Formulario de registro de talento">
 
           <!-- ===== DATOS PERSONALES ===== -->
           <fieldset class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm fade-in">
@@ -88,10 +97,10 @@
                 <p class="mt-1.5 text-sm text-red-600 hidden" id="error-fullName" role="alert" aria-live="polite"></p>
               </div>
 
-              <!-- Correo electrónico -->
+              <!-- Email -->
               <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Correo electrónico <span class="text-red-500" aria-hidden="true">*</span>
+                  Email <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input
                   type="email"
@@ -99,7 +108,7 @@
                   name="email"
                   required
                   autocomplete="email"
-                  placeholder="tu@email.com"
+                  placeholder="nombre@dominio.com"
                   class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
                 />
                 <p class="mt-1.5 text-sm text-red-600 hidden" id="error-email" role="alert" aria-live="polite"></p>
@@ -116,74 +125,41 @@
                   name="phone"
                   required
                   autocomplete="tel"
-                  placeholder="+34 600 000 000"
+                  placeholder="+34 612 345 678"
                   class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
                 />
                 <p class="mt-1.5 text-sm text-red-600 hidden" id="error-phone" role="alert" aria-live="polite"></p>
               </div>
 
-              <!-- Fecha de nacimiento -->
-              <div>
-                <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Fecha de nacimiento <span class="text-red-500" aria-hidden="true">*</span>
-                </label>
-                <input
-                  type="date"
-                  id="birthdate"
-                  name="birthdate"
-                  required
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                />
-                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-birthdate" role="alert" aria-live="polite"></p>
-              </div>
-
-              <!-- Ciudad -->
-              <div>
-                <label for="city" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Ciudad <span class="text-red-500" aria-hidden="true">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  required
-                  placeholder="Ej: Valencia"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                />
-                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-city" role="alert" aria-live="polite"></p>
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ===== INFORMACIÓN PROFESIONAL ===== -->
-          <fieldset class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm fade-in">
-            <legend class="text-lg font-semibold text-gray-900 px-2 flex items-center gap-2">
-              <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">2</span>
-              Información Profesional
-            </legend>
-            <div class="mt-6 grid sm:grid-cols-2 gap-6">
-
-              <!-- Área de interés -->
-              <div>
-                <label for="area" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Área de interés <span class="text-red-500" aria-hidden="true">*</span>
+              <!-- País de residencia -->
+              <div class="sm:col-span-2">
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1.5">
+                  País de residencia <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <select
-                  id="area"
-                  name="area"
+                  id="country"
+                  name="country"
                   required
                   class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
                 >
-                  <option value="" disabled selected>Selecciona un área</option>
-                  <option value="ventas">Ventas</option>
-                  <option value="operaciones">Operaciones</option>
-                  <option value="formacion">Formación Corporativa</option>
-                  <option value="soporte">Soporte al Cliente</option>
-                  <option value="seleccion">Selección de Talento</option>
+                  <option value="" disabled selected>Selecciona tu país de residencia</option>
+                  <option value="españa">España</option>
+                  <option value="estados-unidos">Estados Unidos</option>
                   <option value="otro">Otro</option>
                 </select>
-                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-area" role="alert" aria-live="polite"></p>
+                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-country" role="alert" aria-live="polite"></p>
               </div>
+
+            </div>
+          </fieldset>
+
+          <!-- ===== EXPERIENCIA PROFESIONAL ===== -->
+          <fieldset class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm fade-in">
+            <legend class="text-lg font-semibold text-gray-900 px-2 flex items-center gap-2">
+              <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">2</span>
+              Experiencia Profesional
+            </legend>
+            <div class="mt-6 grid sm:grid-cols-2 gap-6">
 
               <!-- Años de experiencia -->
               <div>
@@ -203,98 +179,120 @@
                 <p class="mt-1.5 text-sm text-red-600 hidden" id="error-experience" role="alert" aria-live="polite"></p>
               </div>
 
-              <!-- Empresa actual -->
+              <!-- Sector de interés -->
               <div>
-                <label for="company" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Empresa actual
-                </label>
-                <input
-                  type="text"
-                  id="company"
-                  name="company"
-                  placeholder="Nombre de la empresa (opcional)"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                />
-              </div>
-
-              <!-- Cargo actual -->
-              <div>
-                <label for="position" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Cargo actual
-                </label>
-                <input
-                  type="text"
-                  id="position"
-                  name="position"
-                  placeholder="Ej: Account Manager"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                />
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ===== PERFIL Y DISPONIBILIDAD ===== -->
-          <fieldset class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm fade-in">
-            <legend class="text-lg font-semibold text-gray-900 px-2 flex items-center gap-2">
-              <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">3</span>
-              Perfil y Disponibilidad
-            </legend>
-            <div class="mt-6 space-y-6">
-
-              <!-- Disponibilidad -->
-              <div>
-                <label for="availability" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Disponibilidad <span class="text-red-500" aria-hidden="true">*</span>
+                <label for="sector" class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Sector de interés <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <select
-                  id="availability"
-                  name="availability"
+                  id="sector"
+                  name="sector"
                   required
                   class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
                 >
-                  <option value="" disabled selected>Selecciona disponibilidad</option>
-                  <option value="inmediata">Inmediata</option>
-                  <option value="15dias">En 15 días</option>
-                  <option value="1mes">En 1 mes</option>
-                  <option value="mas">Más de 1 mes</option>
+                  <option value="" disabled selected>Selecciona el sector de tu interés</option>
+                  <option value="tecnologia">Tecnología</option>
+                  <option value="retail">Retail</option>
+                  <option value="servicios-financieros">Servicios Financieros</option>
+                  <option value="consultoria">Consultoría</option>
+                  <option value="otro">Otro</option>
                 </select>
+                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-sector" role="alert" aria-live="polite"></p>
+              </div>
+
+              <!-- Nivel de inglés -->
+              <div>
+                <label for="englishLevel" class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Nivel de inglés <span class="text-red-500" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="englishLevel"
+                  name="englishLevel"
+                  required
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                >
+                  <option value="" disabled selected>Selecciona tu nivel de inglés</option>
+                  <option value="basico">Básico</option>
+                  <option value="intermedio">Intermedio</option>
+                  <option value="avanzado">Avanzado</option>
+                  <option value="nativo">Nativo</option>
+                </select>
+                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-englishLevel" role="alert" aria-live="polite"></p>
+              </div>
+
+              <!-- LinkedIn -->
+              <div>
+                <label for="linkedin" class="block text-sm font-medium text-gray-700 mb-1.5">
+                  LinkedIn (URL del perfil)
+                </label>
+                <input
+                  type="url"
+                  id="linkedin"
+                  name="linkedin"
+                  placeholder="https://linkedin.com/in/tuperfil"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                />
+                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-linkedin" role="alert" aria-live="polite"></p>
+              </div>
+
+            </div>
+          </fieldset>
+
+          <!-- ===== DISPONIBILIDAD Y COMENTARIOS ===== -->
+          <fieldset class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm fade-in">
+            <legend class="text-lg font-semibold text-gray-900 px-2 flex items-center gap-2">
+              <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold" aria-hidden="true">3</span>
+              Disponibilidad y Comentarios
+            </legend>
+            <div class="mt-6 space-y-6">
+
+              <!-- Disponibilidad (radio) -->
+              <div>
+                <span class="block text-sm font-medium text-gray-700 mb-3">
+                  Disponibilidad <span class="text-red-500" aria-hidden="true">*</span>
+                </span>
+                <div class="flex flex-col sm:flex-row gap-4">
+                  <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="radio" id="availability-inmediata" name="availability" value="inmediata" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                    <span class="text-sm text-gray-700">Inmediata</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="radio" id="availability-1mes" name="availability" value="1 mes" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                    <span class="text-sm text-gray-700">1 mes</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="radio" id="availability-2-3meses" name="availability" value="2-3 meses" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                    <span class="text-sm text-gray-700">2-3 meses</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="radio" id="availability-explorando" name="availability" value="solo explorando" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                    <span class="text-sm text-gray-700">Solo explorando</span>
+                  </label>
+                </div>
                 <p class="mt-1.5 text-sm text-red-600 hidden" id="error-availability" role="alert" aria-live="polite"></p>
               </div>
 
-              <!-- Expectativa salarial -->
+              <!-- Comentarios adicionales -->
               <div>
-                <label for="salary" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Expectativa salarial anual (€)
-                </label>
-                <input
-                  type="number"
-                  id="salary"
-                  name="salary"
-                  min="0"
-                  step="1000"
-                  placeholder="Ej: 35000"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                />
-              </div>
-
-              <!-- Carta de motivación -->
-              <div>
-                <label for="coverLetter" class="block text-sm font-medium text-gray-700 mb-1.5">
-                  Carta de motivación <span class="text-red-500" aria-hidden="true">*</span>
+                <label for="comments" class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Comentarios adicionales
+                  <span class="text-gray-400 font-normal">(máximo 500 caracteres)</span>
                 </label>
                 <textarea
-                  id="coverLetter"
-                  name="coverLetter"
-                  required
-                  rows="5"
-                  placeholder="Cuéntanos por qué te gustaría trabajar con nosotros..."
+                  id="comments"
+                  name="comments"
+                  rows="4"
+                  maxlength="500"
+                  placeholder="Cuéntanos cualquier información adicional que consideres relevante..."
                   class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none resize-y"
                 ></textarea>
-                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-coverLetter" role="alert" aria-live="polite"></p>
-                <p class="mt-1 text-xs text-gray-400">Mínimo 50 caracteres</p>
+                <p class="mt-1.5 text-sm text-red-600 hidden" id="error-comments" role="alert" aria-live="polite"></p>
+                <p class="mt-1 text-xs text-gray-400" id="char-counter">
+                  <span id="char-count">0</span>/500 caracteres
+                </p>
               </div>
 
-              <!-- Aceptación de política -->
+              <!-- Aceptación de política de datos -->
               <div class="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -304,7 +302,7 @@
                   class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <label for="privacy" class="text-sm text-gray-600">
-                  He leído y acepto la <a href="#" class="text-indigo-700 underline hover:text-indigo-900" aria-label="Política de privacidad (abre en nueva ventana)">política de privacidad</a> de Nexova Solutions. <span class="text-red-500" aria-hidden="true">*</span>
+                  Acepto la política de tratamiento de datos <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
               </div>
               <p class="text-sm text-red-600 hidden" id="error-privacy" role="alert" aria-live="polite"></p>
@@ -340,7 +338,7 @@
   <!-- ===== FOOTER ===== -->
   <footer class="bg-gray-900 text-gray-400 text-sm py-6" role="contentinfo">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p>&copy; 2026 Nexova Solutions. Todos los derechos reservados.</p>
+      <p>&copy; 2025 Nexova. Todos los derechos reservados.</p>
       <a href="index.html" class="hover:text-white transition-colors">Volver al sitio principal</a>
     </div>
   </footer>
@@ -355,14 +353,28 @@
     }, { threshold: 0.1 });
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
+    // Character counter for comments
+    document.addEventListener('DOMContentLoaded', function() {
+      const commentsEl = document.getElementById('comments');
+      const charCountEl = document.getElementById('char-count');
+      if (commentsEl && charCountEl) {
+        commentsEl.addEventListener('input', function() {
+          charCountEl.textContent = this.value.length;
+        });
+      }
+    });
+
     // Reset form helper
     function resetForm() {
-      const form = document.getElementById('application-form');
+      const form = document.getElementById('talent-form');
       form.reset();
       form.classList.remove('hidden');
       document.getElementById('success-message').classList.add('hidden');
       document.querySelectorAll('[id^="error-"]').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('input, select, textarea').forEach(el => el.classList.remove('border-red-500'));
+      document.querySelectorAll('input, select, textarea').forEach(el => el.classList.remove('border-red-500', 'bg-red-50'));
+      document.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+      const charCountEl = document.getElementById('char-count');
+      if (charCountEl) charCountEl.textContent = '0';
     }
   </script>
 </body>

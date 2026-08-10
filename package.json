@@ -1,0 +1,17 @@
+{
+  "name": "nexova-data-utils",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Utilidades de procesamiento de datos para Nexova Solutions",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "npx tsc --noEmit",
+    "demo": "npx tsx src/demo.ts",
+    "build": "npx tsc"
+  },
+  "devDependencies": {
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0",
+    "vite": "^8.2.1"
+  }
+}

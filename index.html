@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexova Solutions — Utilidades de Datos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { nexova: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' } } } } }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .card { @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6; }
+    .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+    .tab-btn { @apply px-4 py-2 text-sm font-medium rounded-lg transition-colors; }
+    .tab-btn.active { @apply bg-nexova-600 text-white; }
+    .tab-btn:not(.active) { @apply bg-gray-100 text-gray-600 hover:bg-gray-200; }
+    .output-box { @apply bg-gray-50 rounded-lg p-4 font-mono text-sm overflow-auto max-h-64 border border-gray-200; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-nexova-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">N</div>
+          <h1 class="text-lg font-semibold text-gray-900">Nexova Solutions</h1>
+          <span class="text-sm text-gray-400 hidden sm:inline">·</span>
+          <span class="text-sm text-gray-500 hidden sm:inline">Utilidades de procesamiento de datos</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-400">
+          <span class="hidden sm:inline">TypeScript · Tailwind CSS</span>
+          <span id="statusIndicator" class="w-2 h-2 rounded-full bg-green-400"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Pestañas -->
+    <div class="flex flex-wrap gap-2 mb-6" id="tabBar">
+      <button class="tab-btn active" data-tab="collections">📦 Colecciones</button>
+      <button class="tab-btn" data-tab="search">🔍 Búsquedas</button>
+      <button class="tab-btn" data-tab="transformations">📊 Transformaciones</button>
+      <button class="tab-btn" data-tab="validations">✅ Validaciones</button>
+      <button class="tab-btn" data-tab="data">🗃️ Datos de ejemplo</button>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PESTAÑA: COLECCIONES -->
+    <!-- ================================================================ -->
+    <div id="tab-collections" class="tab-content space-y-6">
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">Filtrado de elementos</h2>
+        <p class="text-sm text-gray-500 mb-4">Filtra candidatos por rango de score, estado o nivel de inglés.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por score mínimo</label>
+            <input type="range" id="scoreMin" min="0" max="100" value="70"
+                   class="w-full accent-nexova-600" oninput="runCollections()" />
+            <div class="flex justify-between text-xs text-gray-400">
+              <span>0</span>
+              <span id="scoreMinLabel" class="font-medium text-nexova-600">70</span>
+              <span>100</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por estado</label>
+            <select id="filterStatus" onchange="runCollections()"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-nexova-500 focus:border-nexova-500">
+              <option value="all">Todos</option>
+              <option value="nuevo">Nuevo</option>
+              <option value="en_revision">En revisión</option>
+              <option value="entrevistado">Entrevistado</option>
+              <option value="preseleccionado">Preseleccionado</option>
+              <option value="rechazado">Rechazado</option>
+              <option value="contratado">Contratado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nivel de inglés</label>
+            <select id="filterEnglish" onchange="runCollections()"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-nexova-500 focus:border-nexova-500">
+              <option value="all">Todos</option>
+              <option value="basico">Básico</option>
+              <option value="intermedio">Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+              <option value="nativo">Nativo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Resultado del filtro</h3>
+            <div id="filterOutput" class="output-box">Selecciona filtros para ver resultados...</div>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Conteo por estado</h3>
+            <div id="countByOutput" class="output-box">Aplicando filtros...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">Ordenamiento</h2>
+        <p class="text-sm text-gray-500 mb-4">Ordena los candidatos por diferentes criterios.</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button onclick="runSort('score')" class="px-3 py-1.5 bg-nexova-50 text-nexova-700 rounded-lg text-sm font-medium hover:bg-nexova-100 transition-colors">Por score ↓</button>
+          <button onclick="runSort('name')" class="px-3 py-1.5 bg-nexova-50 text-nexova-700 rounded-lg text-sm font-medium hover:bg-nexova-100 transition-colors">Por nombre ↑</button>
+          <button onclick="runSort('experience')" class="px-3 py-1.5 bg-nexova-50 text-nexova-700 rounded-lg text-sm font-medium hover:bg-nexova-100 transition-colors">Por experiencia ↓</button>
+          <button onclick="runSort('status_score')" class="px-3 py-1.5 bg-nexova-50 text-nexova-700 rounded-lg text-sm font-medium hover:bg-nexova-100 transition-colors">Status + Score</button>
+        </div>
+        <div id="sortOutput" class="output-box">Pulsa un botón para ordenar...</div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">Paginación</h2>
+        <p class="text-sm text-gray-500 mb-4">Navega por los candidatos página por página.</p>
+        <div class="flex items-center gap-4 mb-4">
+          <label class="text-sm font-medium text-gray-700">Elementos por página:</label>
+          <select id="pageSize" onchange="runPagination()"
+                  class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <div id="paginationOutput" class="output-box mb-3">Cargando...</div>
+        <div class="flex items-center gap-2" id="paginationControls"></div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PESTAÑA: BÚSQUEDAS -->
+    <!-- ================================================================ -->
+    <div id="tab-search" class="tab-content space-y-6 hidden">
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">Búsqueda lineal</h2>
+        <p class="text-sm text-gray-500 mb-4">Busca un candidato por email en el array (sin ordenar). Complejidad: O(n).</p>
+        <div class="flex gap-3 mb-4">
+          <input type="text" id="linearSearchInput" value="ana.martinez@email.com" placeholder="Email del candidato..."
+                 class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-nexova-500 focus:border-nexova-500" />
+          <button onclick="runLinearSearch()"
+                  class="px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Buscar</button>
+        </div>
+        <div id="linearSearchOutput" class="output-box">Pulsa "Buscar" para ejecutar una búsqueda lineal...</div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">Búsqueda binaria</h2>
+        <p class="text-sm text-gray-500 mb-4">Busca un score en el array ordenado de candidatos. Complejidad: O(log n).</p>
+        <div class="flex gap-3 mb-4">
+          <input type="number" id="binarySearchInput" value="78" min="0" max="100" placeholder="Score a buscar..."
+                 class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-nexova-500 focus:border-nexova-500" />
+          <button onclick="runBinarySearch()"
+                  class="px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Buscar</button>
+        </div>
+        <div id="binarySearchOutput" class="output-box">Pulsa "Buscar" para ejecutar una búsqueda binaria...</div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">Smart Search</h2>
+        <p class="text-sm text-gray-500 mb-4">Elige automáticamente entre búsqueda lineal o binaria según el tamaño y orden del array.</p>
+        <div class="flex gap-3 mb-4">
+          <input type="number" id="smartSearchInput" value="8" min="0" max="50" placeholder="Años de experiencia..."
+                 class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-nexova-500 focus:border-nexova-500" />
+          <button onclick="runSmartSearch()"
+                  class="px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Buscar</button>
+        </div>
+        <div id="smartSearchOutput" class="output-box">Pulsa "Buscar" para usar Smart Search...</div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PESTAÑA: TRANSFORMACIONES -->
+    <!-- ================================================================ -->
+    <div id="tab-transformations" class="tab-content space-y-6 hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-1">📐 Resumen numérico — Scores</h2>
+          <p class="text-sm text-gray-500 mb-4">Suma, promedio, mínimo y máximo de los scores de candidatos.</p>
+          <div id="numericSummaryOutput" class="output-box">Cargando...</div>
+        </div>
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-1">🏆 Máximo y mínimo</h2>
+          <p class="text-sm text-gray-500 mb-4">Candidato con mayor score y con menor experiencia.</p>
+          <div id="minMaxOutput" class="output-box">Cargando...</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-1">📊 Sumas y promedios</h2>
+          <p class="text-sm text-gray-500 mb-4">Precios de formación, experiencia de candidatos.</p>
+          <div id="sumAvgOutput" class="output-box">Cargando...</div>
+        </div>
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-1">📈 Distribución por estado</h2>
+          <p class="text-sm text-gray-500 mb-4">Porcentaje de candidatos en cada estado del proceso.</p>
+          <div id="distributionOutput" class="output-box">Cargando...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">📋 Conteos por categoría</h2>
+        <p class="text-sm text-gray-500 mb-4">Nivel de inglés, prioridad de tickets, modalidad de formación.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase mb-2">Por nivel de inglés</h3>
+            <div id="countEnglishOutput" class="output-box text-xs">Cargando...</div>
+          </div>
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase mb-2">Por prioridad de tickets</h3>
+            <div id="countPriorityOutput" class="output-box text-xs">Cargando...</div>
+          </div>
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase mb-2">Por modalidad</h3>
+            <div id="countModalityOutput" class="output-box text-xs">Cargando...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PESTAÑA: VALIDACIONES -->
+    <!-- ================================================================ -->
+    <div id="tab-validations" class="tab-content space-y-6 hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <div class="flex items-center justify-between mb-1">
+            <h2 class="text-lg font-semibold">👤 Validar candidato</h2>
+            <span id="candidateBadge" class="badge bg-green-100 text-green-800">Válido ✅</span>
+          </div>
+          <p class="text-sm text-gray-500 mb-4">Prueba con datos incorrectos para ver las validaciones.</p>
+          <div class="space-y-3 mb-4" id="candidateForm">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Nombre</label>
+                <input type="text" id="vFirstName" value="Ana"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Apellido</label>
+                <input type="text" id="vLastName" value="Martínez"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600">Email</label>
+              <input type="text" id="vEmail" value="ana.martinez@email.com"
+                     class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Experiencia (años)</label>
+                <input type="number" id="vExperience" value="8" min="-1" max="60"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Score (0-100)</label>
+                <input type="number" id="vScore" value="85" min="-10" max="200"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Nivel inglés</label>
+                <select id="vEnglish"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm">
+                  <option value="basico">Básico</option>
+                  <option value="intermedio">Intermedio</option>
+                  <option value="avanzado" selected>Avanzado</option>
+                  <option value="nativo">Nativo</option>
+                  <option value="experto">Experto (inválido)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <button onclick="runCandidateValidation()"
+                  class="w-full px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Validar candidato</button>
+          <div id="candidateValidationOutput" class="output-box mt-3">Pulsa "Validar candidato" para probar...</div>
+        </div>
+
+        <div class="card">
+          <div class="flex items-center justify-between mb-1">
+            <h2 class="text-lg font-semibold">🎓 Validar programa</h2>
+            <span id="programBadge" class="badge bg-green-100 text-green-800">Válido ✅</span>
+          </div>
+          <p class="text-sm text-gray-500 mb-4">Prueba cambios en los campos del programa formativo.</p>
+          <div class="space-y-3 mb-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-600">Duración (horas)</label>
+              <input type="number" id="vDuration" value="40"
+                     class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Max participantes</label>
+                <input type="number" id="vMaxParticipants" value="25"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600">Precio por participante</label>
+                <input type="number" id="vPrice" value="1200"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600">Modalidad</label>
+              <select id="vModality"
+                      class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm">
+                <option value="online">Online</option>
+                <option value="presencial">Presencial</option>
+                <option value="mixto" selected>Mixto</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="runProgramValidation()"
+                  class="w-full px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Validar programa</button>
+          <div id="programValidationOutput" class="output-box mt-3">Pulsa "Validar programa" para probar...</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-1">🎫 Validar ticket de soporte</h2>
+          <p class="text-sm text-gray-500 mb-4">Verifica que un ticket cumpla las reglas de SLA y prioridad.</p>
+          <button onclick="runTicketValidation()"
+                  class="px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Validar tickets de ejemplo</button>
+          <div id="ticketValidationOutput" class="output-box mt-3">Comprueba tickets válidos e inválidos...</div>
+        </div>
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-1">💰 Validar oportunidad de venta</h2>
+          <p class="text-sm text-gray-500 mb-4">Verifica consistencia entre etapa y probabilidad de cierre.</p>
+          <button onclick="runSalesValidation()"
+                  class="px-4 py-2 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Validar oportunidades</button>
+          <div id="salesValidationOutput" class="output-box mt-3">Comprueba oportunidades válidas e inconsistentes...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PESTAÑA: DATOS DE EJEMPLO -->
+    <!-- ================================================================ -->
+    <div id="tab-data" class="tab-content space-y-6 hidden">
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">🗃️ Datos de ejemplo cargados</h2>
+        <p class="text-sm text-gray-500 mb-4">Todos los datos de ejemplo definidos en <code class="text-nexova-600 bg-nexova-50 px-1 rounded">types/models.ts</code></p>
+        <div id="dataSummaryOutput" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+      </div>
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-1">📄 Vista de datos</h2>
+        <p class="text-sm text-gray-500 mb-4">Selecciona una colección para inspeccionar sus datos.</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button onclick="showData('candidates')" class="px-3 py-1.5 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors">Candidatos</button>
+          <button onclick="showData('programs')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Programas</button>
+          <button onclick="showData('tickets')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Tickets</button>
+          <button onclick="showData('opportunities')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Oportunidades</button>
+          <button onclick="showData('enrollments')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Inscripciones</button>
+        </div>
+        <div id="dataDetailOutput" class="output-box max-h-96">Selecciona una colección para ver sus datos...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-gray-400">
+      Nexova Solutions © 2026 — Utilidades de procesamiento de datos · AI Engineering
+    </div>
+  </footer>
+
+  <!-- ================================================================ -->
+  <!-- SCRIPTS -->
+  <!-- ================================================================ -->
+  <script type="module">
+    import('./src/main.ts').then(() => {
+      document.getElementById('statusIndicator')?.classList.replace('bg-gray-400', 'bg-green-400');
+
+      // Inicializar todas las secciones
+      try {
+        runCollections();
+        runPagination();
+        renderNumericSummary();
+        renderMinMax();
+        renderSumAvg();
+        renderDistribution();
+        renderCounts();
+        renderDataSummary();
+      } catch (e) {
+        console.warn('Error al inicializar:', e);
+      }
+    }).catch(err => {
+      console.error('Error cargando Nexova utils:', err);
+      document.getElementById('statusIndicator')?.classList.replace('bg-green-400', 'bg-red-400');
+    });
+  </script>
+
+  <script>
+    // ==========================================================
+    // NAVEGACIÓN POR PESTAÑAS
+    // ==========================================================
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+      const tabId = btn.dataset.tab;
+      document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
+    });
+
+    // ==========================================================
+    // COLECCIONES
+    // ==========================================================
+    function runCollections() {
+      const N = window.Nexova;
+      if (!N) return;
+
+      const scoreMin = parseInt(document.getElementById('scoreMin').value);
+      document.getElementById('scoreMinLabel').textContent = scoreMin;
+
+      const statusFilter = document.getElementById('filterStatus').value;
+      const englishFilter = document.getElementById('filterEnglish').value;
+
+      let filtered = N.SAMPLE_CANDIDATES;
+
+      if (scoreMin > 0) {
+        filtered = N.filterByRange(filtered, c => c.score, scoreMin, 100);
+      }
+      if (statusFilter !== 'all') {
+        filtered = N.filterBySet(filtered, c => c.status, [statusFilter]);
+      }
+      if (englishFilter !== 'all') {
+        filtered = N.filterBySet(filtered, c => c.englishLevel, [englishFilter]);
+      }
+
+      document.getElementById('filterOutput').textContent =
+        filtered.length === 0
+          ? '❌ No se encontraron candidatos con esos filtros.'
+          : filtered.map(c => `  ${c.firstName} ${c.lastName.padEnd(12)} | score: ${String(c.score).padStart(3)} | ${c.englishLevel} | ${c.status}`).join('\n');
+
+      // Count by status
+      const counts = N.countBy(filtered, c => c.status);
+      document.getElementById('countByOutput').textContent =
+        counts.length === 0
+          ? 'Sin datos'
+          : counts.map(({ category, count }) => `  ${category.padEnd(18)} ${'█'.repeat(count)} ${count}`).join('\n');
+    }
+
+    function runSort(criteria) {
+      const N = window.Nexova;
+      if (!N) return;
+
+      let sorted;
+      switch (criteria) {
+        case 'score':
+          sorted = N.sortBy(N.SAMPLE_CANDIDATES, c => c.score, 'desc');
+          break;
+        case 'name':
+          sorted = N.sortBy(N.SAMPLE_CANDIDATES, c => c.lastName, 'asc');
+          break;
+        case 'experience':
+          sorted = N.sortBy(N.SAMPLE_CANDIDATES, c => c.experienceYears, 'desc');
+          break;
+        case 'status_score':
+          sorted = N.sortByMultiple(N.SAMPLE_CANDIDATES, [
+            { getValue: c => c.status, direction: 'asc' },
+            { getValue: c => c.score, direction: 'desc' },
+          ]);
+          break;
+        default:
+          sorted = N.SAMPLE_CANDIDATES;
+      }
+
+      document.getElementById('sortOutput').textContent =
+        sorted.map((c, i) => `  ${i + 1}. ${c.firstName} ${c.lastName.padEnd(12)} | score: ${String(c.score).padStart(3)} | exp: ${String(c.experienceYears).padStart(2)} años | ${c.status}`).join('\n');
+    }
+
+    function runPagination() {
+      const N = window.Nexova;
+      if (!N) return;
+
+      const pageSize = parseInt(document.getElementById('pageSize').value);
+      const result = N.paginate(N.SAMPLE_CANDIDATES, 1, pageSize);
+
+      document.getElementById('paginationOutput').textContent =
+        `Total: ${result.total} candidatos · Página ${result.page} de ${result.totalPages}\n` +
+        `Mostrando ${result.items.length} elemento(s):\n` +
+        result.items.map(c => `  • ${c.firstName} ${c.lastName} — ${c.status}`).join('\n');
+
+      const controls = document.getElementById('paginationControls');
+      controls.innerHTML = '';
+      for (let i = 1; i <= result.totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = `px-3 py-1 rounded-lg text-sm font-medium transition-colors ${i === 1 ? 'bg-nexova-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+        btn.onclick = () => {
+          const p = N.paginate(N.SAMPLE_CANDIDATES, i, pageSize);
+          document.getElementById('paginationOutput').textContent =
+            `Total: ${p.total} candidatos · Página ${p.page} de ${p.totalPages}\n` +
+            `Mostrando ${p.items.length} elemento(s):\n` +
+            p.items.map(c => `  • ${c.firstName} ${c.lastName} — ${c.status}`).join('\n');
+
+          controls.querySelectorAll('button').forEach(b => {
+            b.className = 'px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors';
+          });
+          btn.className = 'px-3 py-1 rounded-lg text-sm font-medium bg-nexova-600 text-white transition-colors';
+        };
+        controls.appendChild(btn);
+      }
+    }
+
+    // ==========================================================
+    // BÚSQUEDAS
+    // ==========================================================
+    function runLinearSearch() {
+      const N = window.Nexova;
+      if (!N) return;
+      const email = document.getElementById('linearSearchInput').value.trim();
+      if (!email) return alert('Introduce un email');
+
+      const result = N.linearSearch(N.SAMPLE_CANDIDATES, c => c.email === email);
+      document.getElementById('linearSearchOutput').textContent = result.found
+        ? `✅ Encontrado en índice ${result.index}:\n   ${result.item.firstName} ${result.item.lastName} · ${result.item.currentRole} · Score: ${result.item.score}`
+        : `❌ No se encontró ningún candidato con el email "${email}"`;
+    }
+
+    function runBinarySearch() {
+      const N = window.Nexova;
+      if (!N) return;
+      const targetScore = parseInt(document.getElementById('binarySearchInput').value);
+      if (isNaN(targetScore)) return alert('Introduce un score válido');
+
+      const sorted = N.sortBy(N.SAMPLE_CANDIDATES, c => c.score, 'asc');
+      const result = N.binarySearch(sorted, c => c.score, targetScore);
+
+      let output = `Array ordenado por score: [${sorted.map(c => c.score).join(', ')}]\n\n`;
+      output += result.found
+        ? `✅ Score ${targetScore} encontrado en índice ${result.index}:\n   ${result.item.firstName} ${result.item.lastName} · ${result.item.currentRole}`
+        : `❌ No se encontró ningún candidato con score = ${targetScore}`;
+
+      document.getElementById('binarySearchOutput').textContent = output;
+    }
+
+    function runSmartSearch() {
+      const N = window.Nexova;
+      if (!N) return;
+      const years = parseInt(document.getElementById('smartSearchInput').value);
+      if (isNaN(years)) return alert('Introduce años de experiencia');
+
+      const result = N.smartSearch(N.SAMPLE_CANDIDATES, c => c.experienceYears, years);
+      const isSortedArr = N.isSorted(N.SAMPLE_CANDIDATES, c => c.experienceYears);
+
+      let output = `Array ordenado por experiencia: ${isSortedArr ? '✅ Sí' : '❌ No'}\n`;
+      output += `Tamaño del array: ${N.SAMPLE_CANDIDATES.length} elementos\n`;
+      output += result.found
+        ? `\n✅ Encontrado:\n   ${result.item.firstName} ${result.item.lastName} · ${result.item.experienceYears} años de experiencia`
+        : `\n❌ No se encontró ningún candidato con ${years} años de experiencia`;
+
+      document.getElementById('smartSearchOutput').textContent = output;
+    }
+
+    // ==========================================================
+    // TRANSFORMACIONES
+    // ==========================================================
+    function renderNumericSummary() {
+      const N = window.Nexova;
+      if (!N) return;
+      const s = N.numericSummary(N.SAMPLE_CANDIDATES, c => c.score);
+      document.getElementById('numericSummaryOutput').textContent =
+        `Suma:     ${s.sum}\nPromedio: ${s.average.toFixed(1)}\nMínimo:   ${s.min}\nMáximo:   ${s.max}\nTotal:    ${s.count} candidatos`;
+    }
+
+    function renderMinMax() {
+      const N = window.Nexova;
+      if (!N) return;
+      const best = N.maxBy(N.SAMPLE_CANDIDATES, c => c.score);
+      const leastExp = N.minBy(N.SAMPLE_CANDIDATES, c => c.experienceYears);
+      document.getElementById('minMaxOutput').textContent =
+        `🏆 Mayor score:\n   ${best.firstName} ${best.lastName} — ${best.score} pts (${best.currentRole})\n\n` +
+        `🌟 Menor experiencia:\n   ${leastExp.firstName} ${leastExp.lastName} — ${leastExp.experienceYears} años (${leastExp.currentRole})`;
+    }
+
+    function renderSumAvg() {
+      const N = window.Nexova;
+      if (!N) return;
+      const totalPrice = N.sumBy(N.SAMPLE_TRAINING_PROGRAMS, p => p.pricePerParticipant);
+      const avgPrice = N.averageBy(N.SAMPLE_TRAINING_PROGRAMS, p => p.pricePerParticipant);
+      const avgExp = N.averageBy(N.SAMPLE_CANDIDATES, c => c.experienceYears);
+      document.getElementById('sumAvgOutput').textContent =
+        `💰 Precios de formación:\n   Suma total: ${totalPrice} €\n   Precio promedio: ${avgPrice.toFixed(0)} €\n\n` +
+        `👤 Candidatos:\n   Experiencia promedio: ${avgExp.toFixed(1)} años`;
+    }
+
+    function renderDistribution() {
+      const N = window.Nexova;
+      if (!N) return;
+      const dist = N.categoryDistribution(N.SAMPLE_CANDIDATES, c => c.status);
+      document.getElementById('distributionOutput').textContent =
+        dist.map(d => `  ${d.category.padEnd(18)} ${d.count} candidato(s) · ${d.percentage}%`).join('\n');
+    }
+
+    function renderCounts() {
+      const N = window.Nexova;
+      if (!N) return;
+
+      const byEnglish = N.countByCategory(N.SAMPLE_CANDIDATES, c => c.englishLevel);
+      document.getElementById('countEnglishOutput').textContent =
+        byEnglish.map(e => `  ${e.category.padEnd(12)} ${e.count}`).join('\n');
+
+      const byPriority = N.countByCategory(N.SAMPLE_TICKETS, t => t.priority);
+      document.getElementById('countPriorityOutput').textContent =
+        byPriority.map(p => `  ${p.category.padEnd(8)} ${p.count}`).join('\n');
+
+      const byModality = N.countByCategory(N.SAMPLE_TRAINING_PROGRAMS, p => p.modality);
+      document.getElementById('countModalityOutput').textContent =
+        byModality.map(m => `  ${m.category.padEnd(10)} ${m.count}`).join('\n');
+    }
+
+    // ==========================================================
+    // VALIDACIONES
+    // ==========================================================
+    function runCandidateValidation() {
+      const N = window.Nexova;
+      if (!N) return;
+
+      const candidate = {
+        id: 'TEST',
+        firstName: document.getElementById('vFirstName').value,
+        lastName: document.getElementById('vLastName').value,
+        email: document.getElementById('vEmail').value,
+        phone: '',
+        skills: [],
+        experienceYears: parseInt(document.getElementById('vExperience').value) || 0,
+        englishLevel: document.getElementById('vEnglish').value,
+        currentRole: 'Test',
+        status: 'nuevo',
+        score: parseInt(document.getElementById('vScore').value) || 0,
+        appliedDate: new Date(),
+      };
+
+      const result = N.validateCandidate(candidate);
+      const badge = document.getElementById('candidateBadge');
+      badge.textContent = result.valid ? 'Válido ✅' : `Inválido (${result.errors.length}) ❌`;
+      badge.className = `badge ${result.valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+
+      document.getElementById('candidateValidationOutput').textContent =
+        result.valid
+          ? '✅ Todos los campos del candidato son válidos.'
+          : result.errors.map(e => `  ❌ ${e}`).join('\n');
+    }
+
+    function runProgramValidation() {
+      const N = window.Nexova;
+      if (!N) return;
+
+      const program = {
+        id: 'TEST',
+        title: 'Programa de prueba',
+        description: '',
+        category: 'liderazgo',
+        durationHours: parseInt(document.getElementById('vDuration').value) || 0,
+        modality: document.getElementById('vModality').value,
+        maxParticipants: parseInt(document.getElementById('vMaxParticipants').value) || 0,
+        pricePerParticipant: parseInt(document.getElementById('vPrice').value) || 0,
+        status: 'activo',
+        createdAt: new Date(),
+      };
+
+      const result = N.validateTrainingProgram(program);
+      const badge = document.getElementById('programBadge');
+      badge.textContent = result.valid ? 'Válido ✅' : `Inválido (${result.errors.length}) ❌`;
+      badge.className = `badge ${result.valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+
+      document.getElementById('programValidationOutput').textContent =
+        result.valid
+          ? '✅ Todos los campos del programa son válidos.'
+          : result.errors.map(e => `  ❌ ${e}`).join('\n');
+    }
+
+    function runTicketValidation() {
+      const N = window.Nexova;
+      if (!N) return;
+      const results = N.SAMPLE_TICKETS.map(t => ({ ticket: t, result: N.validateSupportTicket(t) }));
+      document.getElementById('ticketValidationOutput').textContent =
+        results.map(({ ticket, result }) =>
+          `  ${result.valid ? '✅' : '❌'} ${ticket.id}: ${ticket.subject.slice(0, 40)}${result.valid ? '' : `\n     ${result.errors.join('; ')}`}`
+        ).join('\n');
+    }
+
+    function runSalesValidation() {
+      const N = window.Nexova;
+      if (!N) return;
+      const results = N.SAMPLE_SALES_OPPORTUNITIES.map(o => ({ opp: o, result: N.validateSalesOpportunity(o) }));
+      document.getElementById('salesValidationOutput').textContent =
+        results.map(({ opp, result }) =>
+          `  ${result.valid ? '✅' : '❌'} ${opp.id}: ${opp.stage} · ${opp.amount}€ · prob: ${opp.probability}%${result.valid ? '' : `\n     ${result.errors.join('; ')}`}`
+        ).join('\n');
+    }
+
+    // ==========================================================
+    // DATOS DE EJEMPLO
+    // ==========================================================
+    function renderDataSummary() {
+      const N = window.Nexova;
+      if (!N) return;
+      const container = document.getElementById('dataSummaryOutput');
+      const datasets = [
+        { name: 'Candidatos', count: N.SAMPLE_CANDIDATES.length, icon: '👤' },
+        { name: 'Programas', count: N.SAMPLE_TRAINING_PROGRAMS.length, icon: '📚' },
+        { name: 'Tickets', count: N.SAMPLE_TICKETS.length, icon: '🎫' },
+        { name: 'Oportunidades', count: N.SAMPLE_SALES_OPPORTUNITIES.length, icon: '💰' },
+        { name: 'Inscripciones', count: N.SAMPLE_ENROLLMENTS.length, icon: '📝' },
+      ];
+      container.innerHTML = datasets.map(d => `
+        <div class="bg-gray-50 rounded-lg p-4 text-center border border-gray-100">
+          <div class="text-2xl mb-1">${d.icon}</div>
+          <div class="text-xl font-bold text-gray-800">${d.count}</div>
+          <div class="text-xs text-gray-500">${d.name}</div>
+        </div>
+      `).join('');
+    }
+
+    function showData(type) {
+      const N = window.Nexova;
+      if (!N) return;
+
+      // Highlight active button
+      document.querySelectorAll('#tab-data .flex-wrap button').forEach(b => {
+        b.className = 'px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors';
+      });
+      event.target.className = 'px-3 py-1.5 bg-nexova-600 text-white rounded-lg text-sm font-medium hover:bg-nexova-700 transition-colors';
+
+      let data;
+      switch (type) {
+        case 'candidates': data = N.SAMPLE_CANDIDATES; break;
+        case 'programs': data = N.SAMPLE_TRAINING_PROGRAMS; break;
+        case 'tickets': data = N.SAMPLE_TICKETS; break;
+        case 'opportunities': data = N.SAMPLE_SALES_OPPORTUNITIES; break;
+        case 'enrollments': data = N.SAMPLE_ENROLLMENTS; break;
+        default: data = [];
+      }
+
+      document.getElementById('dataDetailOutput').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

@@ -113,6 +113,12 @@ export default function Home() {
             <li><a href="#servicios" className="text-gray-600 hover:text-indigo-700 transition-colors" aria-label="Ir a Servicios">Servicios</a></li>
             <li><a href="#por-que-nexova" className="text-gray-600 hover:text-indigo-700 transition-colors" aria-label="Ir a Talento">Talento</a></li>
             <li><a href="#contacto" className="text-gray-600 hover:text-indigo-700 transition-colors" aria-label="Ir a Contacto">Contacto</a></li>
+            <li><a href="/tracker" className="text-indigo-700 font-semibold hover:text-indigo-900 transition-colors" aria-label="Ir al panel de gestión">
+              <span className="flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Tracker
+              </span>
+            </a></li>
           </ul>
           <a href="/application" className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-indigo-700 rounded-lg hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" aria-label="Únete a nuestro banco de talento">
             Únete al banco de talento

@@ -234,7 +234,7 @@ export default function ApplicationPage() {
 
   const handleBlur = (name: string) => {
     setTouched((prev) => ({ ...prev, [name]: true }));
-    const value = name === "privacy" ? formData.privacy : (formData as Record<string, string>)[name];
+    const value = name === "privacy" ? formData.privacy : (formData as unknown as Record<string, string>)[name];
     const error = validateField(name, value);
     setErrors((prev) => {
       const next = { ...prev };
@@ -253,7 +253,7 @@ export default function ApplicationPage() {
 
     for (const key of Object.keys(formData)) {
       allTouched[key] = true;
-      const value = key === "privacy" ? formData.privacy : (formData as Record<string, string>)[key];
+      const value = key === "privacy" ? formData.privacy : (formData as unknown as Record<string, string>)[key];
       const error = validateField(key, value);
       if (error) newErrors[key] = error;
     }

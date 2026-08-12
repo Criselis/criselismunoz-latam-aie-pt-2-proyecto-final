@@ -1,6 +1,6 @@
 import type { RecordOut, NoteOut, NoteCreate, RecordCreate, RecordPatch } from "./types";
 
-const API_BASE = "https://playground.4geeks.com/tracker/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://playground.4geeks.com/tracker/api/v1";
 
 class ApiError extends Error {
   status: number;

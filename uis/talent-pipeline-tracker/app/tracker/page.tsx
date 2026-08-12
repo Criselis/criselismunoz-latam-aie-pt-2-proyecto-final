@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, type FormEvent } from "react";
+import { useState, useEffect, useCallback, Suspense, type FormEvent } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getRecords, createRecord } from "@/lib/api";
 import type { RecordOut, Filters, RecordCreate } from "@/lib/types";
 import {
@@ -12,14 +13,16 @@ import {
   Header, Spinner, SearchIcon, PlusIcon, CloseIcon,
 } from "@/lib/components";
 
-export default function TrackerPage() {
+function TrackerContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [records, setRecords] = useState<RecordOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
-    status: "",
-    stage: "",
-    search: "",
+    status: searchParams.get("status") || "",
+    stage: searchParams.get("stage") || "",
+    search: searchParams.get("search") || "",
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -61,11 +64,24 @@ export default function TrackerPage() {
   }, [fetchRecords]);
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    const next = { ...filters, [key]: value };
+    setFilters(next);
+    syncUrlParams(next);
   };
 
   const clearFilters = () => {
-    setFilters({ status: "", stage: "", search: "" });
+    const cleared = { status: "", stage: "", search: "" };
+    setFilters(cleared);
+    syncUrlParams(cleared);
+  };
+
+  const syncUrlParams = (f: Filters) => {
+    const params = new URLSearchParams();
+    if (f.status) params.set("status", f.status);
+    if (f.stage) params.set("stage", f.stage);
+    if (f.search) params.set("search", f.search);
+    const qs = params.toString();
+    router.replace(`/tracker${qs ? `?${qs}` : ""}`, { scroll: false });
   };
 
   const hasActiveFilters = filters.status || filters.stage || filters.search;
@@ -489,5 +505,23 @@ export default function TrackerPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TrackerPage() {
+  return (
+    <Suspense fallback={
+      <div className="font-sans text-gray-800 antialiased bg-gray-50 min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Spinner className="w-8 h-8 text-indigo-600 mx-auto" />
+            <p className="mt-4 text-sm text-gray-500">Cargando...</p>
+          </div>
+        </main>
+      </div>
+    }>
+      <TrackerContent />
+    </Suspense>
   );
 }

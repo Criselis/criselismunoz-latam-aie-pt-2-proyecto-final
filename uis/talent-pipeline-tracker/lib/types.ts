@@ -85,6 +85,39 @@ export const STAGE_VALUES: StageValue[] = [
   "offer_presented",
 ];
 
+// ===== Auth / User types =====
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name?: string;
+  full_name?: string;
+  phone?: string;
+  address?: string;
+  linkedin_url?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  full_name?: string;
+  phone?: string;
+  linkedin_url?: string;
+}
+
 // ===== Filter types =====
 
 export interface Filters {

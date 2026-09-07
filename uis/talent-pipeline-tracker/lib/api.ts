@@ -11,17 +11,37 @@ class ApiError extends Error {
   }
 }
 
+/** Read the JWT token from localStorage (client-side only). */
+function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("nexova_access_token");
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-    ...options,
-  });
+
+  // Attach the auth token if available
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options?.headers as Record<string, string>),
+  };
+  const token = getAuthToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(url, { headers, ...options });
 
   if (!res.ok) {
+    // ----- 401: token expirado/inválido → logout automático -----
+    if (res.status === 401) {
+      localStorage.removeItem("nexova_access_token");
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      throw new ApiError("Sesión expirada. Por favor, inicia sesión nuevamente.", 401);
+    }
+
     let message = `Error ${res.status}: ${res.statusText}`;
     try {
       const body = await res.json();

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthGuard } from "@/lib/auth-guard";
 
 export const metadata: Metadata = {
   title: "Tracker de Talento - Nexova",
@@ -10,5 +11,5 @@ export default function TrackerLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return <AuthGuard>{children}</AuthGuard>;
 }

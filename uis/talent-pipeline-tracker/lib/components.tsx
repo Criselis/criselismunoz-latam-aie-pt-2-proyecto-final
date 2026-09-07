@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { useAuth } from "./auth";
 
 // Re-export ReactNode for Badge component
 
@@ -86,6 +88,14 @@ export function Badge({ children, className = "" }: { children: ReactNode; class
 }
 
 export function Header() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200" role="banner">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16" aria-label="Navegación principal">
@@ -94,6 +104,37 @@ export function Header() {
           <span className="font-semibold tracking-tight">Nexova</span>
         </Link>
         <div className="flex items-center gap-4">
+          {isAuthenticated ? (
+            <>
+              <Link
+                href="/account/profile"
+                className="text-sm font-medium text-gray-500 hover:text-indigo-700 transition-colors"
+              >
+                {user?.name || user?.full_name || user?.email || "Mi cuenta"}
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+              >
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-gray-500 hover:text-indigo-700 transition-colors"
+              >
+                Iniciar sesión
+              </Link>
+              <Link
+                href="/register"
+                className="text-sm font-medium text-white bg-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors"
+              >
+                Registrarse
+              </Link>
+            </>
+          )}
           <Link
             href="/"
             className="text-sm font-medium text-gray-500 hover:text-indigo-700 transition-colors"

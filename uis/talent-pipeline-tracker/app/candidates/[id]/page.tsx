@@ -13,8 +13,9 @@ import {
   Header, Spinner, ChevronLeft, TrashIcon, EditIcon, CloseIcon, PlusIcon,
   MailIcon, PhoneIcon, LinkedInIcon,
 } from "@/lib/components";
+import { AuthGuard } from "@/lib/auth-guard";
 
-export default function CandidateDetailPage({
+function CandidateDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -584,5 +585,13 @@ export default function CandidateDetailPage({
         </div>
       )}
     </div>
+  );
+}
+
+export default function CandidateDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <AuthGuard>
+      <CandidateDetailContent {...props} />
+    </AuthGuard>
   );
 }

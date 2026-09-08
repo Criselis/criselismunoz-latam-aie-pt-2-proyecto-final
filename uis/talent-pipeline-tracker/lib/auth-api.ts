@@ -3,7 +3,16 @@
  * Handles login, register, profile, and token management.
  */
 
-import type { LoginRequest, LoginResponse, RegisterRequest, UserProfile } from "./types";
+import type {
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
+  LoginRequest,
+  LoginResponse,
+  MessageResponse,
+  RegisterRequest,
+  ResetPasswordRequest,
+  UserProfile,
+} from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://playground.4geeks.com/tracker/api/v1";
 
@@ -165,4 +174,37 @@ export async function updateProfile(data: {
  */
 export function logoutUser(): void {
   removeToken();
+}
+
+/**
+ * Forgot Password: POST /auth/forgot-password
+ * Always returns 200. The user receives an email if the email exists.
+ */
+export async function forgotPassword(data: ForgotPasswordRequest): Promise<MessageResponse> {
+  return request<MessageResponse>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Reset Password: POST /auth/reset-password
+ * Consumes a one-time reset token and sets a new password.
+ */
+export async function resetPassword(data: ResetPasswordRequest): Promise<MessageResponse> {
+  return request<MessageResponse>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Change Password: POST /auth/change-password
+ * Requires authentication. Verifies the current password before updating.
+ */
+export async function changePassword(data: ChangePasswordRequest): Promise<MessageResponse> {
+  return request<MessageResponse>("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }

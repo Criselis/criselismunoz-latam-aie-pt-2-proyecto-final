@@ -11,6 +11,11 @@ node_modules/
 __pycache__/
 *.pyc
 
+# Python virtual environments
+.venv/
+.venv-*/
+venv/
+
 # TinyDB database files
 data/*.json
 

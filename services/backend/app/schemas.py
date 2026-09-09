@@ -5,9 +5,36 @@ Pydantic schemas for users, profiles, and authentication.
 import uuid
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
+import sys
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
+
+repo_root = Path(__file__).resolve().parents[3]
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
+from packages.shared.incident_rules import (
+    INCIDENT_BRANCH_CENTRAL,
+    INCIDENT_BRANCH_MIAMI,
+    INCIDENT_BRANCH_VALENCIA,
+    INCIDENT_CATEGORY_CORPORATE_TRAINING,
+    INCIDENT_CATEGORY_CUSTOMER_SUPPORT,
+    INCIDENT_CATEGORY_EXECUTIVE_MANAGEMENT,
+    INCIDENT_CATEGORY_HUMAN_RESOURCES,
+    INCIDENT_CATEGORY_MARKETING_COMMUNICATIONS,
+    INCIDENT_CATEGORY_RECRUITMENT_OPERATIONS,
+    INCIDENT_CATEGORY_SALES_BUSINESS_DEVELOPMENT,
+    INCIDENT_CATEGORY_TECHNOLOGY_INFRASTRUCTURE,
+    INCIDENT_ORIGIN_BRANCH,
+    INCIDENT_ORIGIN_CUSTOMER,
+    INCIDENT_ORIGIN_INTERNAL,
+    INCIDENT_STATUS_DISCARDED,
+    INCIDENT_STATUS_IN_PROGRESS,
+    INCIDENT_STATUS_OPEN,
+    INCIDENT_STATUS_RESOLVED,
+)
 
 
 # ===== Role enum =====
@@ -181,6 +208,99 @@ class RecordOut(BaseModel):
     user_uuid: Optional[str] = None  # TinyDB user id
     applied_at: str
     updated_at: str
+
+
+# ===== Incident schemas =====
+
+class IncidentCategory(str, Enum):
+    recruitment_operations = INCIDENT_CATEGORY_RECRUITMENT_OPERATIONS
+    corporate_training = INCIDENT_CATEGORY_CORPORATE_TRAINING
+    customer_support = INCIDENT_CATEGORY_CUSTOMER_SUPPORT
+    sales_business_development = INCIDENT_CATEGORY_SALES_BUSINESS_DEVELOPMENT
+    marketing_communications = INCIDENT_CATEGORY_MARKETING_COMMUNICATIONS
+    human_resources = INCIDENT_CATEGORY_HUMAN_RESOURCES
+    technology_infrastructure = INCIDENT_CATEGORY_TECHNOLOGY_INFRASTRUCTURE
+    executive_management = INCIDENT_CATEGORY_EXECUTIVE_MANAGEMENT
+
+
+class IncidentStatus(str, Enum):
+    open = INCIDENT_STATUS_OPEN
+    in_progress = INCIDENT_STATUS_IN_PROGRESS
+    resolved = INCIDENT_STATUS_RESOLVED
+    discarded = INCIDENT_STATUS_DISCARDED
+
+
+class IncidentOrigin(str, Enum):
+    customer = INCIDENT_ORIGIN_CUSTOMER
+    branch = INCIDENT_ORIGIN_BRANCH
+    internal = INCIDENT_ORIGIN_INTERNAL
+
+
+class IncidentBranch(str, Enum):
+    central = INCIDENT_BRANCH_CENTRAL
+    valencia = INCIDENT_BRANCH_VALENCIA
+    miami = INCIDENT_BRANCH_MIAMI
+
+
+class IncidentCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=140)
+    description: str = Field(..., min_length=1)
+    category: IncidentCategory
+    origin: IncidentOrigin
+    branch: IncidentBranch
+
+    @field_validator("title", "description", mode="before")
+    @classmethod
+    def validate_required_text(cls, v: str) -> str:
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("este campo es obligatorio")
+        return v.strip()
+
+
+class IncidentUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[IncidentCategory] = None
+    status: Optional[IncidentStatus] = None
+    origin: Optional[IncidentOrigin] = None
+    branch: Optional[IncidentBranch] = None
+
+    @field_validator("title", "description", mode="before")
+    @classmethod
+    def validate_optional_text(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("este campo no puede estar vacío")
+        return v.strip()
+
+
+class IncidentOut(BaseModel):
+    id: str
+    title: str
+    description: str
+    category: IncidentCategory
+    status: IncidentStatus
+    origin: IncidentOrigin
+    branch: IncidentBranch
+    created_at: str
+    updated_at: str
+
+
+# ===== Incident status transition =====
+
+class IncidentStatusTransition(BaseModel):
+    """Request to transition an incident to a new status."""
+    status: IncidentStatus
+
+
+class IncidentsMetrics(BaseModel):
+    """Aggregated metrics for incidents."""
+    total: int
+    by_status: dict[str, int]
+    by_category: dict[str, int]
+    by_origin: dict[str, int]
+    by_branch: dict[str, int]
 
 
 # ===== Note schemas =====

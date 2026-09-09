@@ -1,0 +1,21 @@
+id,estado,categoría,descripción,fecha,ubicación
+1,resuelto,soporte_cliente,"Portal de cliente caído durante 2 horas, sin acceso a seguimiento de pedidos",2026-08-15T10:30:00,central
+2,abierto,operaciones_selección,"Candidato no recibe confirmación de entrevista después de 48h",2026-08-17T14:22:00,valencia
+3,resuelto,formación_corporativa,"Certificado de finalización no se envía automáticamente a participante",2026-08-18T09:15:00,central
+4,en_progreso,soporte_cliente,"Error 500 en API de reportes de ventas, impacta análisis en tiempo real",2026-08-19T11:45:00,miami
+5,resuelto,recursos_humanos,"Solicitud de vacaciones no se marca como leída en bandeja de entrada",2026-08-20T08:00:00,central
+6,abierto,soporte_cliente,"Falta integración de webhook para notificaciones de estado",2026-08-21T16:30:00,valencia
+7,descartado,marketing_comunicaciones,"Feature request rechazada: no alineada con roadmap actual",2026-08-22T13:10:00,central
+8,resuelto,tecnología_infraestructura,"Database index faltante causaba timeout en consultas de candidatos",2026-08-23T09:20:00,central
+9,abierto,operaciones_selección,"Filtro de experiencia no funciona correctamente en búsqueda avanzada",2026-08-24T15:45:00,miami
+10,en_progreso,soporte_cliente,"Cliente reporta lentitud en carga de reportes mensuales",2026-08-25T10:15:00,valencia
+11,resuelto,ventas_desarrollo_negocio,"Descuento de volumen no se aplicaba automáticamente en cotizaciones",2026-08-26T12:30:00,central
+12,abierto,formación_corporativa,"Búsqueda de cursos no filtra por nivel de dificultad",2026-08-27T14:00:00,central
+13,en_progreso,recursos_humanos,"Onboarding checklist no se crea automáticamente para nuevos contratados",2026-08-28T11:22:00,valencia
+14,resuelto,soporte_cliente,"Email de notificación incluía información sensible del cliente (PII)",2026-08-29T09:05:00,central
+15,abierto,operaciones_selección,"Exportación de candidatos en CSV corrompe caracteres acentuados",2026-08-30T16:45:00,miami
+16,descartado,marketing_comunicaciones,"Propuesta de nuevo color en UI: demasiado similar a competidores",2026-08-31T10:00:00,central
+17,resuelto,tecnología_infraestructura,"Memory leak en worker de procesamiento de CVs detectado y corregido",2026-09-01T08:30:00,central
+18,abierto,soporte_cliente,"SLA incumplido: respuesta del equipo tardó 36 horas en lugar de 24",2026-09-02T13:15:00,valencia
+19,en_progreso,formación_corporativa,"Plataforma de LMS integrada requiere migración de datos de estudiantes",2026-09-03T11:50:00,central
+20,abierto,ventas_desarrollo_negocio,"Pipeline CRM no se sincroniza con base de datos de oportunidades cada hora",2026-09-04T15:30:00,miami

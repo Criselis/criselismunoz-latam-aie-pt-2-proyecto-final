@@ -1,4 +1,13 @@
-import type { RecordOut, NoteOut, NoteCreate, RecordCreate, RecordPatch } from "./types";
+import type {
+  IncidentCreate,
+  IncidentOut,
+  IncidentPatch,
+  RecordOut,
+  NoteOut,
+  NoteCreate,
+  RecordCreate,
+  RecordPatch,
+} from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://playground.4geeks.com/tracker/api/v1";
 
@@ -47,7 +56,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       const body = await res.json();
       if (body.detail) {
         message = Array.isArray(body.detail)
-          ? body.detail.map((d: { msg: string }) => d.msg).join(", ")
+          ? body.detail.map((d: { field?: string; message?: string; msg?: string; loc?: string[] }) => {
+              const field = d.field || d.loc?.at(-1);
+              const detailMessage = d.message || d.msg || "Valor no válido";
+              return field ? `${field}: ${detailMessage}` : detailMessage;
+            }).join(", ")
           : body.detail;
       }
     } catch {
@@ -110,6 +123,69 @@ export async function patchRecord(id: string, data: RecordPatch): Promise<Record
 
 export async function deleteRecord(id: string): Promise<void> {
   return request<void>(`/records/${id}`, {
+    method: "DELETE",
+  });
+}
+
+// ===== Incidents =====
+
+export async function getIncidents(params?: {
+  status?: string;
+  category?: string;
+  origin?: string;
+  branch?: string;
+  search?: string;
+}): Promise<IncidentOut[]> {
+  const searchParams = new URLSearchParams();
+  if (params?.status) searchParams.set("status", params.status);
+  if (params?.category) searchParams.set("category", params.category);
+  if (params?.origin) searchParams.set("origin", params.origin);
+  if (params?.branch) searchParams.set("branch", params.branch);
+  if (params?.search) searchParams.set("search", params.search);
+
+  const qs = searchParams.toString();
+  return request<IncidentOut[]>(`/incidents${qs ? `?${qs}` : ""}`);
+}
+
+export async function createIncident(data: IncidentCreate): Promise<IncidentOut> {
+  return request<IncidentOut>("/incidents", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function patchIncident(id: string, data: IncidentPatch): Promise<IncidentOut> {
+  return request<IncidentOut>(`/incidents/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function transitionIncidentStatus(id: string, status: IncidentPatch["status"]): Promise<IncidentOut> {
+  return request<IncidentOut>(`/incidents/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function getIncidentsSummary(): Promise<{
+  total: number;
+  by_status: Record<string, number>;
+  by_category: Record<string, number>;
+  by_origin: Record<string, number>;
+  by_branch: Record<string, number>;
+}> {
+  return request<{
+    total: number;
+    by_status: Record<string, number>;
+    by_category: Record<string, number>;
+    by_origin: Record<string, number>;
+    by_branch: Record<string, number>;
+  }>("/incidents/summary");
+}
+
+export async function deleteIncident(id: string): Promise<void> {
+  return request<void>(`/incidents/${id}`, {
     method: "DELETE",
   });
 }

@@ -112,6 +112,12 @@ export function Header() {
               >
                 {user?.name || user?.full_name || user?.email || "Mi cuenta"}
               </Link>
+              <Link
+                href="/incidents"
+                className="text-sm font-medium text-gray-500 hover:text-indigo-700 transition-colors"
+              >
+                Incidencias
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"

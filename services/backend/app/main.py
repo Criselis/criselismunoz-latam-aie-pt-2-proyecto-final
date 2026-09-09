@@ -5,22 +5,51 @@ Run with:
     uvicorn app.main:app --reload
 """
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.routers import auth as auth_router
 from app.routers import users as users_router
 from app.routers import profiles as profiles_router
 from app.routers import records as records_router
+from app.routers import incidents as incidents_router
 from app.auth import get_current_user
 from app.crud import profiles as crud_profiles
+from app.crud.incidents import seed_incidents
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
     docs_url="/docs",
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    _request: Request, exc: RequestValidationError
+):
+    """Return concise, field-level validation errors to API clients."""
+    errors = []
+    for error in exc.errors():
+        location = error.get("loc", [])
+        field = str(location[-1]) if location else "request"
+        errors.append({
+            "field": field,
+            "message": error.get("msg", "Valor no válido"),
+        })
+    return JSONResponse(status_code=400, content={"detail": errors})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(_request: Request, _exc: Exception):
+    """Hide internal details while returning a useful generic error."""
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "No se pudo completar la operación. Inténtalo de nuevo."},
+    )
 
 # ── CORS ───────────────────────────────────────────────────────────
 app.add_middleware(
@@ -36,6 +65,12 @@ app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(profiles_router.router)
 app.include_router(records_router.router)
+app.include_router(incidents_router.router, prefix="/api")
+
+
+@app.on_event("startup")
+async def seed_initial_data():
+    seed_incidents()
 
 
 # ── GET /auth/me — combined user + profile ─────────────────────────

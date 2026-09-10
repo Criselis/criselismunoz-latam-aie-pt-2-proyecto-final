@@ -73,8 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const profile = await getProfile();
         setUser(profile);
       } catch {
-        // If /users/me fails, we still have the token but no profile
-        // Could happen if the endpoint is not available
+        // If /users/me fails, we still have the token but no profile.
+        // Could happen if the endpoint is not available.
+        // The user is still authenticated — they just won't see their name.
         console.warn("Login succeeded but could not fetch profile");
       }
     },

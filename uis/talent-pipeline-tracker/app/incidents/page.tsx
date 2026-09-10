@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { ApiError, createIncident, getIncidents, getIncidentsSummary, transitionIncidentStatus } from "@/lib/api";
+import { createIncident, getIncidents, getIncidentsSummary, transitionIncidentStatus } from "@/lib/api";
+import { ApiError } from "@/lib/errors";
 import {
   INCIDENT_BRANCH_LABELS,
   INCIDENT_BRANCH_VALUES,
@@ -285,6 +286,12 @@ export default function IncidentsPage() {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
             <p className="text-sm text-amber-800">No se pudieron cargar las métricas.</p>
             <p className="text-sm text-amber-700 mt-1">{summaryError}</p>
+            <button
+              onClick={() => { setSummaryError(null); void loadSummary(); }}
+              className="mt-2 text-sm font-medium text-amber-700 hover:text-amber-900 underline"
+            >
+              Intentar de nuevo
+            </button>
           </div>
         )}
 

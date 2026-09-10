@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense, type FormEvent } from "reac
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getRecords, createRecord } from "@/lib/api";
+import { friendlyError } from "@/lib/errors";
 import type { RecordOut, Filters, RecordCreate } from "@/lib/types";
 import {
   STATUS_LABELS, STAGE_LABELS, STATUS_COLORS, STAGE_COLORS,
@@ -52,7 +53,7 @@ function TrackerContent() {
       const data = await getRecords(params);
       setRecords(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar candidatos");
+      setError(friendlyError(err, "Error al cargar candidatos"));
       setRecords([]);
     } finally {
       setLoading(false);
@@ -104,7 +105,7 @@ function TrackerContent() {
       });
       fetchRecords();
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Error al crear candidato");
+      setCreateError(friendlyError(err, "Error al crear candidato"));
     } finally {
       setCreating(false);
     }

@@ -5,6 +5,8 @@ Run with:
     uvicorn app.main:app --reload
 """
 
+import logging
+
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -20,6 +22,13 @@ from app.auth import get_current_user
 from app.crud import profiles as crud_profiles
 from app.crud.incidents import seed_incidents
 
+# ── Logging ─────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger("nexova-api")
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
@@ -29,9 +38,10 @@ app = FastAPI(
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
-    _request: Request, exc: RequestValidationError
+    request: Request, exc: RequestValidationError
 ):
-    """Return concise, field-level validation errors to API clients."""
+    """Return concise, field-level validation errors to API clients.
+    Logs the invalid request for observability."""
     errors = []
     for error in exc.errors():
         location = error.get("loc", [])
@@ -40,12 +50,18 @@ async def validation_exception_handler(
             "field": field,
             "message": error.get("msg", "Valor no válido"),
         })
+    logger.warning(
+        "Validation error on %s %s: %s",
+        request.method, request.url.path, errors,
+    )
     return JSONResponse(status_code=400, content={"detail": errors})
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(_request: Request, _exc: Exception):
-    """Hide internal details while returning a useful generic error."""
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """Hide internal details while returning a useful generic error.
+    Full traceback is logged server-side only."""
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
     return JSONResponse(
         status_code=500,
         content={"detail": "No se pudo completar la operación. Inténtalo de nuevo."},

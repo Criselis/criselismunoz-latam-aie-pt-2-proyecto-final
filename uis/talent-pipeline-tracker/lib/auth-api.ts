@@ -13,16 +13,15 @@ import type {
   ResetPasswordRequest,
   UserProfile,
 } from "./types";
+import { ApiError } from "./errors";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://playground.4geeks.com/tracker/api/v1";
 
-class ApiError extends Error {
-  status: number;
+class AuthApiError extends ApiError {
   errors?: Record<string, string[]>;
   constructor(message: string, status: number, errors?: Record<string, string[]>) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
+    super(message, status);
+    this.name = "AuthApiError";
     this.errors = errors;
   }
 }
@@ -40,10 +39,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
-    headers,
-    ...options,
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers,
+      ...options,
+    });
+  } catch {
+    throw new AuthApiError("No se pudo conectar con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.", 0);
+  }
 
   if (!res.ok) {
     // ----- 401: token expirado/inválido → logout automático -----
@@ -52,7 +56,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       if (typeof window !== "undefined") {
         window.location.href = "/login";
       }
-      throw new ApiError("Sesión expirada. Por favor, inicia sesión nuevamente.", 401);
+      throw new AuthApiError("Sesión expirada. Por favor, inicia sesión nuevamente.", 401);
     }
 
     let message = `Error ${res.status}: ${res.statusText}`;
@@ -76,14 +80,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     } catch {
       // ignore if body is not JSON
     }
-    throw new ApiError(message, res.status, fieldErrors);
+    throw new AuthApiError(message, res.status, fieldErrors);
   }
 
   if (res.status === 204) {
     return undefined as T;
   }
 
-  return res.json();
+  try {
+    return await res.json();
+  } catch {
+    throw new AuthApiError("El servidor respondió con un formato inesperado. Inténtalo de nuevo.", res.status);
+  }
 }
 
 // ===== Token Management =====

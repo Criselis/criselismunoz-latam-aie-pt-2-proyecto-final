@@ -8,17 +8,9 @@ import type {
   RecordCreate,
   RecordPatch,
 } from "./types";
+import { ApiError } from "./errors";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://playground.4geeks.com/tracker/api/v1";
-
-class ApiError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
 
 /** Read the JWT token from localStorage (client-side only). */
 function getAuthToken(): string | null {
@@ -39,7 +31,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, { headers, ...options });
+  let res: Response;
+  try {
+    res = await fetch(url, { headers, ...options });
+  } catch {
+    throw new ApiError("No se pudo conectar con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.", 0);
+  }
 
   if (!res.ok) {
     // ----- 401: token expirado/inválido → logout automático -----
@@ -73,7 +70,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     return undefined as T;
   }
 
-  return res.json();
+  try {
+    return await res.json();
+  } catch {
+    throw new ApiError("El servidor respondió con un formato inesperado. Inténtalo de nuevo.", res.status);
+  }
 }
 
 // ===== Records =====
@@ -209,4 +210,4 @@ export async function deleteNote(recordId: string, noteId: string): Promise<void
   });
 }
 
-export { ApiError };
+// ApiError is exported from ./errors

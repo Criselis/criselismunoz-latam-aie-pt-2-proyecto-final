@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
+import { friendlyError } from "@/lib/errors";
 
 const NexovaLogo = ({ className = "w-8 h-8" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -100,7 +101,7 @@ export default function RegisterPage() {
       });
       router.push("/tracker");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Error al registrarse";
+      const message = friendlyError(err, "Error al registrarse");
       setServerError(message);
     } finally {
       setLoading(false);

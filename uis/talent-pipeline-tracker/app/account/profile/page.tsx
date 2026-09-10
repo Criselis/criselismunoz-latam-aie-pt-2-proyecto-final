@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { getProfile, updateProfile } from "@/lib/auth-api";
 import { AuthGuard } from "@/lib/auth-guard";
+import { friendlyError } from "@/lib/errors";
 import type { UserProfile } from "@/lib/types";
 
 const NexovaLogo = ({ className = "w-8 h-8" }: { className?: string }) => (
@@ -44,7 +45,7 @@ function ProfileContent() {
         address: data.address || "",
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar el perfil");
+      setError(friendlyError(err, "Error al cargar el perfil"));
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ function ProfileContent() {
       setIsEditing(false);
       setMessage({ type: "success", text: "Perfil actualizado correctamente" });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error al actualizar el perfil";
+      const msg = friendlyError(err, "Error al actualizar el perfil");
       setMessage({ type: "error", text: msg });
     } finally {
       setSaving(false);

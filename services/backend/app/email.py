@@ -4,8 +4,12 @@ Email sending via Resend SDK.
 Used for password reset flow (AUTH-03).
 """
 
+import logging
+
 import resend
 from app.config import settings
+
+logger = logging.getLogger("nexova-api.email")
 
 
 def send_password_reset_email(to_email: str, reset_token: str) -> bool:
@@ -20,15 +24,17 @@ def send_password_reset_email(to_email: str, reset_token: str) -> bool:
         True if the email was accepted by Resend, False otherwise.
     """
     if not settings.RESEND_API_KEY:
-        # Silent fallback — log or raise in test environments
-        print(f"[email mock] Would send reset token to {to_email}: {reset_token}")
+        # Silent fallback — log without exposing the full token
+        token_suffix = reset_token[-6:] if len(reset_token) > 6 else reset_token
+        logger.info(
+            "Mock email mode: would send reset to %s (token suffix: ...%s)",
+            to_email, token_suffix,
+        )
         return True
 
     resend.api_key = settings.RESEND_API_KEY
 
-    # The frontend URL — in production this should be configurable
-    frontend_url = "http://localhost:3000"
-    reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+    reset_link = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
 
     html_content = f"""
 <!DOCTYPE html>
@@ -128,7 +134,8 @@ def send_password_reset_email(to_email: str, reset_token: str) -> bool:
 
     try:
         response = resend.Emails.send(params)
+        logger.info("Reset email sent to %s (id=%s)", to_email, response.get("id", "unknown"))
         return True
     except Exception as exc:
-        print(f"[email error] Failed to send reset email to {to_email}: {exc}")
+        logger.error("Failed to send reset email to %s: %s", to_email, exc)
         return False

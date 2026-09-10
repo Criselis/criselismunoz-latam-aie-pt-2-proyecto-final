@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { forgotPassword } from "@/lib/auth-api";
+import { friendlyError } from "@/lib/errors";
 import type { ForgotPasswordRequest } from "@/lib/types";
 
 const NexovaLogo = ({ className = "w-8 h-8" }: { className?: string }) => (
@@ -33,7 +34,7 @@ export default function ForgotPasswordPage() {
       await forgotPassword(data);
       setSent(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Error al enviar la solicitud";
+      const message = friendlyError(err);
       setError(message);
     } finally {
       setLoading(false);

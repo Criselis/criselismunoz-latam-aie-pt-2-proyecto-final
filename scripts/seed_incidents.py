@@ -27,6 +27,9 @@ sys.path.insert(0, str(backend_path))
 
 # Set working directory to backend so TinyDB path resolves correctly
 import os
+if not backend_path.is_dir():
+    print(f"Error: Backend directory not found: {backend_path}", file=sys.stderr)
+    sys.exit(1)
 original_cwd = os.getcwd()
 os.chdir(backend_path)
 
@@ -83,12 +86,8 @@ def seed_from_csv(
         csv_path = Path(csv_path)
     
     if not csv_path.exists():
-        return {
-            "loaded": 0,
-            "skipped": 0,
-            "failed": 0,
-            "errors": [{"row": 0, "reason": f"CSV no encontrado: {csv_path}"}],
-        }
+        print(f"Error: CSV file not found: {csv_path}", file=sys.stderr)
+        sys.exit(1)
     
     stats = {
         "loaded": 0,
@@ -103,8 +102,32 @@ def seed_from_csv(
     print(f"CSV: {csv_path}")
     print(f"Dry-run: {dry_run}\n")
     
-    with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+    # --- Open CSV with error handling for I/O issues ---
+    try:
+        csv_file = open(csv_path, "r", encoding="utf-8")
+    except FileNotFoundError:
+        print(f"Error: CSV file not found: {csv_path}", file=sys.stderr)
+        sys.exit(1)
+    except PermissionError:
+        print(f"Error: No permission to read: {csv_path}", file=sys.stderr)
+        sys.exit(1)
+    except UnicodeDecodeError:
+        print(f"Error: Cannot decode file (expected UTF-8): {csv_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    REQUIRED_CSV_COLUMNS = {"estado", "categoría", "ubicación", "descripción", "fecha"}
+    
+    try:
+        reader = csv.DictReader(csv_file)
+        
+        # Validate required columns before processing rows
+        missing_cols = REQUIRED_CSV_COLUMNS - set(reader.fieldnames or [])
+        if missing_cols:
+            print(
+                f"Error: CSV is missing required columns: {', '.join(sorted(missing_cols))}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         
         for row_num, row in enumerate(reader, start=2):  # start=2 (skip header row 1)
             try:
@@ -147,7 +170,7 @@ def seed_from_csv(
             
             except IncidentTransformationError as e:
                 error_msg = str(e)
-                print(f"  ✗ Row {row_num}: {error_msg}")
+                print(f"  ✗ Row {row_num}: {error_msg}", file=sys.stderr)
                 stats["errors"].append({"row": row_num, "reason": error_msg})
                 stats["failed"] += 1
             
@@ -155,15 +178,20 @@ def seed_from_csv(
                 # Extract field names from validation error
                 error_fields = [err["loc"][0] for err in e.errors()]
                 error_msg = f"validación fallida en: {', '.join(str(f) for f in error_fields)}"
-                print(f"  ✗ Row {row_num}: {error_msg}")
+                print(f"  ✗ Row {row_num}: {error_msg}", file=sys.stderr)
                 stats["errors"].append({"row": row_num, "reason": error_msg})
                 stats["failed"] += 1
             
             except Exception as e:
                 error_msg = f"error inesperado: {str(e)}"
-                print(f"  ✗ Row {row_num}: {error_msg}")
+                print(f"  ✗ Row {row_num}: {error_msg}", file=sys.stderr)
                 stats["errors"].append({"row": row_num, "reason": error_msg})
                 stats["failed"] += 1
+    except csv.Error as e:
+        print(f"Error parsing CSV: {e}", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        csv_file.close()
     print(f"\n{'-'*70}")
     print(f"RESUMEN")
     print(f"{'-'*70}")

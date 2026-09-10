@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { changePassword } from "@/lib/auth-api";
 import { AuthGuard } from "@/lib/auth-guard";
+import { friendlyError } from "@/lib/errors";
 
 const NexovaLogo = ({ className = "w-8 h-8" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -57,7 +58,7 @@ function ChangePasswordContent() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Error al cambiar la contraseña";
+      const message = friendlyError(err, "Error al cambiar la contraseña");
       setError(message);
     } finally {
       setLoading(false);

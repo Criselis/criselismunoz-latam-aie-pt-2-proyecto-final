@@ -8,6 +8,8 @@ Endpoints:
   POST /auth/change-password   →  requires current password (authenticated)
 """
 
+import logging
+
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -36,9 +38,8 @@ from app.schemas import (
     UserCreate,
     UserOut,
 )
-from app.crud.users import create_user
-from app.crud.profiles import create_profile
 
+logger = logging.getLogger("nexova-api.auth")
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -87,7 +88,13 @@ async def forgot_password(body: ForgotPasswordRequest):
         # Generate a one-time reset token
         reset_token = create_reset_token(user["id"], expire_minutes=30)
         # Attempt to send the email (silent failure if Resend fails)
-        send_password_reset_email(body.email, reset_token)
+        try:
+            send_password_reset_email(body.email, reset_token)
+        except Exception:
+            logger.exception(
+                "Failed to send password-reset email to %s",
+                body.email,
+            )
 
     # Always return 200 — never reveal whether the email exists
     return MessageOut(

@@ -77,6 +77,8 @@ class ResetPasswordRequest(BaseModel):
     def validate_new_password(cls, v: str) -> str:
         if len(v) < 6:
             raise ValueError("la contraseña debe tener al menos 6 caracteres")
+        if len(v) > 72:
+            raise ValueError("la contraseña no puede exceder 72 caracteres")
         return v
 
 
@@ -89,6 +91,8 @@ class ChangePasswordRequest(BaseModel):
     def validate_new_password(cls, v: str) -> str:
         if len(v) < 6:
             raise ValueError("la contraseña debe tener al menos 6 caracteres")
+        if len(v) > 72:
+            raise ValueError("la contraseña no puede exceder 72 caracteres")
         return v
 
 
@@ -118,6 +122,8 @@ class UserCreate(BaseModel):
     def validate_password(cls, v: str) -> str:
         if len(v) < 6:
             raise ValueError("la contraseña debe tener al menos 6 caracteres")
+        if len(v) > 72:
+            raise ValueError("la contraseña no puede exceder 72 caracteres")
         return v
 
 
@@ -140,6 +146,8 @@ class UserUpdate(BaseModel):
     def validate_password(cls, v: Optional[str]) -> Optional[str]:
         if v is not None and len(v) < 6:
             raise ValueError("la contraseña debe tener al menos 6 caracteres")
+        if v is not None and len(v) > 72:
+            raise ValueError("la contraseña no puede exceder 72 caracteres")
         return v
 
 

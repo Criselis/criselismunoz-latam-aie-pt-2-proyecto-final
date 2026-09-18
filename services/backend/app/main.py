@@ -13,14 +13,18 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.config import settings
+from app.database import supabase_engine
+from app.models import SQLModel
 from app.routers import auth as auth_router
 from app.routers import users as users_router
 from app.routers import profiles as profiles_router
 from app.routers import records as records_router
 from app.routers import incidents as incidents_router
+from app.routers import inventory as inventory_router
 from app.auth import get_current_user
 from app.crud import profiles as crud_profiles
 from app.crud.incidents import seed_incidents
+from app.seed_inventory import seed_inventory_tables
 
 # ── Logging ─────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -82,11 +86,23 @@ app.include_router(users_router.router)
 app.include_router(profiles_router.router)
 app.include_router(records_router.router)
 app.include_router(incidents_router.router, prefix="/api")
+app.include_router(inventory_router.router)
 
 
 @app.on_event("startup")
 async def seed_initial_data():
+    # Initialise Supabase schema (development/learning only — use Alembic in production)
+    SQLModel.metadata.create_all(supabase_engine)
     seed_incidents()
+    # Seed inventory tables with demo data (non-blocking)
+    try:
+        from app.database import get_db
+        db_gen = get_db()
+        db = next(db_gen)
+        seed_inventory_tables(db)
+        db.close()
+    except Exception:
+        logger.exception("Failed to seed inventory tables — continuing.")
 
 
 # ── GET /auth/me — combined user + profile ─────────────────────────

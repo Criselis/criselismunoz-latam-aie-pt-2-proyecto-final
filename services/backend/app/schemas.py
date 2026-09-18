@@ -332,3 +332,83 @@ def new_uuid() -> str:
 
 def now_iso() -> str:
     return datetime.utcnow().isoformat()
+
+
+# ====================================================================
+# Inventory — Pydantic request / response schemas (separate from ORM)
+# ====================================================================
+
+# ----- Product (TrainingProgram) -----
+
+class ProductCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    sku: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = None
+    duration_hours: int = Field(default=0, ge=0)
+    price: float = Field(default=0.0, ge=0.0)
+    max_participants: int = Field(default=0, ge=0)
+    is_active: bool = Field(default=True)
+
+
+class ProductOut(BaseModel):
+    id: str
+    name: str
+    sku: str
+    description: Optional[str] = None
+    duration_hours: int
+    price: float
+    max_participants: int
+    is_active: bool
+    current_stock: int = 0  # computed from orders, never stored directly
+    created_at: str
+    updated_at: str
+
+
+# ----- Inbound order (StockEntry) -----
+
+class InboundOrderCreate(BaseModel):
+    product_id: str = Field(..., description="UUID of the product (training program)")
+    quantity: int = Field(..., gt=0)
+    notes: Optional[str] = None
+
+
+class InboundOrderOut(BaseModel):
+    id: str
+    product_id: str
+    quantity: int
+    created_at: str
+    user_uuid: str
+    notes: Optional[str] = None
+
+
+# ----- Outbound order (StockExit) -----
+
+class OutboundOrderCreate(BaseModel):
+    product_id: str = Field(..., description="UUID of the product (training program)")
+    quantity: int = Field(..., gt=0)
+    reason: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class OutboundOrderOut(BaseModel):
+    id: str
+    product_id: str
+    quantity: int
+    reason: Optional[str] = None
+    created_at: str
+    user_uuid: str
+    notes: Optional[str] = None
+
+
+# ----- Combined order response -----
+
+class OrderOut(BaseModel):
+    id: str
+    order_type: str  # "inbound" | "outbound"
+    product_id: str
+    product_name: str
+    quantity: int
+    reason: Optional[str] = None
+    created_at: str
+    user_uuid: str
+    notes: Optional[str] = None

@@ -54,5 +54,13 @@ class Settings:
         "data/nexova_db.json",
     )
 
+    # ----- Supabase / PostgreSQL -----
+    SUPABASE_DATABASE_URL: str = os.getenv("SUPABASE_DATABASE_URL", "")
+    if not SUPABASE_DATABASE_URL:
+        raise RuntimeError(
+            "SUPABASE_DATABASE_URL is not set. "
+            "Set it in .env as the PostgreSQL connection string for Supabase."
+        )
+
 
 settings = Settings()

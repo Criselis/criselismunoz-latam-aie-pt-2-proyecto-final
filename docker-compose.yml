@@ -1,0 +1,76 @@
+# ============================================
+# Nexova — Docker Compose (raíz del monorepo)
+# ============================================
+# Servicios:
+#   backend     → FastAPI / uvicorn con recarga automática (puerto 8000)
+#   uis         → Next.js website (3000) + backoffice (3001) con recarga en caliente
+#
+# Red: nexova-network (definida explícitamente)
+#   Los servicios se comunican entre sí por nombre de servicio (no localhost).
+
+services:
+
+  backend:
+    build:
+      context: ./services
+      dockerfile: Dockerfile
+    container_name: nexova-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Bind mount del código fuente para recarga con --reload
+      - ./services/backend:/app
+      # Bind mount del paquete compartido (packages/shared/) dentro de /app para que
+      # la búsqueda dinámica de raíz (subir padres hasta encontrar packages/shared/) funcione
+      - ./packages:/app/packages
+    command: >
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - nexova-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  uis:
+    build:
+      context: ./uis
+      dockerfile: Dockerfile
+      target: development
+    container_name: nexova-uis
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      # Solo variables de infraestructura Docker (no secretos):
+      # Los frontends se conectan al backend por nombre de servicio, no localhost
+      - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE_DOCKER}
+    volumes:
+      # Bind mount del código fuente para recarga en caliente (next dev)
+      - ./uis/website:/app/website
+      - ./uis/backoffice:/app/backoffice
+      # Volúmenes anónimos para conservar node_modules de la imagen
+      - /app/website/node_modules
+      - /app/backoffice/node_modules
+    command: >
+      sh -c "
+        cd /app/website && npm run dev -- -p 3000 &
+        cd /app/backoffice && npm run dev -- -p 3001 &
+        wait
+      "
+    networks:
+      - nexova-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  nexova-network:
+    driver: bridge

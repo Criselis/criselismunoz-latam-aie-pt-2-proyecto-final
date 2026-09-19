@@ -11,9 +11,14 @@ import sys
 from app.database import incidents_table
 from app.schemas import IncidentCreate, IncidentUpdate, new_uuid, now_iso
 
-repo_root = Path(__file__).resolve().parents[4]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
+# ── Buscar dinámicamente la raíz del monorepo (funciona en host y dentro de Docker) ──
+_repo_root = Path(__file__).resolve()
+for _parent in range(10):  # límite de seguridad: 10 niveles
+    if (_repo_root / "packages" / "shared").is_dir():
+        break
+    _repo_root = _repo_root.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
 
 from packages.shared.incident_rules import (
     INCIDENT_CATEGORY_VALUES,

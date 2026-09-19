@@ -227,3 +227,75 @@ export interface IncidentFilters {
   branch: string;
   search: string;
 }
+
+// ====================================================================
+// Inventory types
+// ====================================================================
+
+export interface ProductOut {
+  id: string;
+  name: string;
+  sku: string;
+  description: string | null;
+  duration_hours: number;
+  price: number;
+  max_participants: number;
+  is_active: boolean;
+  current_stock: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductCreate {
+  name: string;
+  sku: string;
+  description?: string | null;
+  duration_hours?: number;
+  price?: number;
+  max_participants?: number;
+  is_active?: boolean;
+}
+
+export interface InboundOrderCreate {
+  product_id: string;
+  quantity: number;
+  notes?: string | null;
+}
+
+export interface InboundOrderOut {
+  id: string;
+  product_id: string;
+  quantity: number;
+  created_at: string;
+  user_uuid: string;
+  notes: string | null;
+}
+
+export interface OutboundOrderCreate {
+  product_id: string;
+  quantity: number;
+  reason?: string | null;
+  notes?: string | null;
+}
+
+export interface OutboundOrderOut {
+  id: string;
+  product_id: string;
+  quantity: number;
+  reason: string | null;
+  created_at: string;
+  user_uuid: string;
+  notes: string | null;
+}
+
+export interface OrderOut {
+  id: string;
+  order_type: "inbound" | "outbound";
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  reason: string | null;
+  created_at: string;
+  user_uuid: string;
+  notes: string | null;
+}

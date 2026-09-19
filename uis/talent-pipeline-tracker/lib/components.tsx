@@ -118,6 +118,12 @@ export function Header() {
               >
                 Incidencias
               </Link>
+              <Link
+                href="/backoffice/inventory/products"
+                className="text-sm font-medium text-gray-500 hover:text-indigo-700 transition-colors"
+              >
+                Inventario
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"

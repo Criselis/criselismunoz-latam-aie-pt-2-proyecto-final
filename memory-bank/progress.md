@@ -14,11 +14,11 @@
 | Auth backend (FastAPI + JWT) | `feature/Auth` | Registro, login y rutas protegidas |
 | Auth frontend | `feature/Frontend` | Login/registro, guard y manejo de 401 |
 | Restablecer contraseña | `feature/password-reset` | Forgot/reset/change con email (Resend) |
-| Gestor de incidencias | `feature/GestorIncidencias` | API `/api/incidents` y página `/incidents` |
+| Gestor de incidencias | `feature/GestorIncidencias` | API `/api/incidents` y página `/incidents` (rutas del cliente corregidas en `feature/contenedorizacion`) |
 | Manejo de errores y tests | `feature/error-handling-audit` | `lib/errors.ts`, 58 tests pytest y 232 Jest |
 | Hito 5 — Backend ORM con doble BD | `feature/Mile05-back` | SQLModel + Supabase, módulo `/inventory` |
 | Hito 5 — Backoffice de inventario | `feature/mile05-front` | Productos y órdenes de entrada/salida |
-| Contenerización | `feature/contenedorizacion` | Docker Compose. Rechazado y corregido (comunicación por nombre de servicio); pendiente de reenvío |
+| Contenerización | `feature/contenedorizacion` | Docker Compose. Rechazado y corregido (comunicación por nombre de servicio); probado en local con `docker compose up`; pendiente del VPS y del reenvío |
 
 ## En curso
 
@@ -26,17 +26,18 @@
 
 ## Problemas conocidos / deuda técnica
 
-1. **Contenerización:** se corrigió el rechazo; el backoffice usa `/backend-api` y Next lo reenvía a `http://backend:8000` (`API_INTERNAL_URL` en `.env`). Falta probarlo con `docker compose up`, desplegarlo en el VPS y reenviar el proyecto.
+1. **Contenerización:** se corrigió el rechazo; el backoffice usa `/backend-api` y Next lo reenvía a `http://backend:8000` (`API_INTERNAL_URL` en `.env`). Probado en local el 2026-11-19: API, website, backoffice, login, inventario e incidencias funcionan. Falta desplegarlo en el VPS y reenviar el proyecto.
 2. **`main` desactualizado:** termina en el Hito 3. Las ramas posteriores no se mergearon; hay que integrarlas en orden mediante PR.
 3. **Duplicado `uis/talent-pipeline-tracker`**: su `app/` es igual a la de `uis/backoffice`. Hay que decidir si se elimina.
 4. **Artefactos versionados en el historial:** `node_modules`, `.venv` y `coverage/`.
 5. **`uis/website`** es solo un esqueleto: falta migrar la landing del Hito 1 (SEO, schema.org, accesibilidad).
-6. **Incidencias en el backoffice:** el router está montado en `/api/incidents`, pero `lib/api.ts` llama a `/incidents`. Hay que verificarlo y alinear las rutas.
+6. **Recarga en caliente en Docker sobre Windows:** los cambios hechos desde Windows no llegan a `next dev` dentro del contenedor (bind mount de Docker Desktop). Probar `watchOptions.pollIntervalMs` no lo resolvió. Para desarrollar en Windows, usar el repo dentro de WSL2 o `npm run dev` en local. En Linux (VPS/Codespaces) debería funcionar, pero no está verificado.
 7. **Cobertura de tests:** faltan tests de `records`, `incidents` (en `tests/`), `profiles`, `users` e `inventory`.
 
 ## Próximos pasos
 
 1. Cerrar el Hito 4 con un PR a `main` y hacer el merge.
-2. Probar la contenerización corregida, desplegarla en el VPS y reenviar el proyecto. Revisar las rutas de incidencias (punto 6).
-3. Hito 6 — Telemetría: logging centralizado y pipeline de datos para los dashboards.
-4. Hito 7 — RAG: búsqueda semántica sobre candidatos y base de conocimiento de soporte.
+2. Desplegar la contenerización en el VPS y reenviar el proyecto.
+3. Backend development (proyectos sobre el monorepo): Backend Architecture Proposal, Analizador de archivo de incidentes y Supplier Directory.
+4. Architecture optimization: Frontend Performance Audit, Backend Serialization Audit y Caching.
+5. Application telemetry: plan, captura en el frontend, almacenamiento y reporte.

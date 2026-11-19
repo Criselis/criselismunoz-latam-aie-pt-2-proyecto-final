@@ -8,9 +8,9 @@
 | `uis/backoffice` | App interna de Nexova (Next.js, puerto 3001, layout propio y vista de entrada en `/`) | Activa |
 | `uis/talent-pipeline-tracker` | **Legacy.** Copia anterior al split; su `app/` es idéntica a la de `uis/backoffice` | No añadir código; candidata a eliminarse |
 | `services/backend` | API central FastAPI (`app/` con `routers/`, `crud/`, `schemas.py`, `models.py`) | Activa |
-| `packages/shared` | Código compartido entre servicios (p. ej. `incident_rules.py` y tipos) | Activa |
+| `packages/shared` | Código compartido entre servicios (p. ej. `incident_rules.py`, `incidents_analysis.py` y tipos) | Activa |
 | `src/` | Utilidades TypeScript de datos del Hito 2 (modelos, colecciones, búsqueda y validaciones) con tests Jest | Estable |
-| `scripts/` | Scripts de soporte (p. ej. `seed_incidents.py`) | Activa |
+| `scripts/` | Scripts de soporte (`seed_incidents.py`, `analyze.py` + CSV de prueba `incidents-nexova.csv`) | Activa |
 | `data/` | `raw/`, `process/`, `pipelines/`, `eval/` (p. ej. `raw/incidents_historical.csv`) | Parcial |
 | `agents/`, `skills/`, `mcps/`, `workflows/` | **Código de producto** para los agentes, skills, MCP y workflows de Nexova (hitos 7–10). No confundir con `.agents/` | Vacías (solo README) |
 | `.agents/` | Configuración de los agentes de código (reglas y skills de desarrollo) | Hito 4 |
@@ -35,11 +35,11 @@ No crees árboles paralelos: un frontend nuevo va en `uis/<nombre>` y un servici
   - **TinyDB** (documental, local): `users`, `profiles`, `records`, `incidents`, `notes`, `reset_tokens`.
   - **Supabase/PostgreSQL** con SQLModel: `trainingprograms`, `stockentries`, `stockexits` (catálogo de formación e inventario).
 - Email transaccional con Resend (restablecimiento de contraseña).
-- Routers: `/auth`, `/users`, `/profiles`, `/records`, `/api/incidents`, `/inventory`.
+- Routers: `/auth`, `/users`, `/profiles`, `/records`, `/api/incidents`, `/api/incidents/analyze` + `/api/incidents/results/export` (análisis de CSV de tickets, router `incidents_analysis.py`), `/inventory`.
 - Configuración en `app/config.py` a partir de variables de entorno. `NEXOVA_SECRET_KEY` y `SUPABASE_DATABASE_URL` son **obligatorias**: si faltan, la app no arranca.
 
 **Testing**
-- Backend: `pytest` en `services/backend/tests/` (auth: registro, login, token, forgot/reset/change password). `conftest.py` aísla TinyDB en un archivo temporal.
+- Backend: `pytest` en `services/backend/tests/` (auth: registro, login, token, forgot/reset/change password; análisis de incidencias: lógica compartida, script y endpoints). `conftest.py` aísla TinyDB en un archivo temporal.
 - Utilidades TS: Jest en la raíz (`npx jest --coverage`, umbral del 70 %).
 - Plan y estado completos en `TESTING.md`.
 

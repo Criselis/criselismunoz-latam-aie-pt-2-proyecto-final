@@ -26,7 +26,7 @@ No crees árboles paralelos: un frontend nuevo va en `uis/<nombre>` y un servici
 - ⚠️ Next 16 trae cambios incompatibles: consulta `node_modules/next/dist/docs/` antes de usar una API (ver `uis/backoffice/AGENTS.md`).
 - Cliente HTTP propio en `lib/api.ts`, `lib/auth-api.ts` y `lib/inventory.ts`; errores normalizados en `lib/errors.ts`.
 - Sesión: JWT guardado en `localStorage` (`lib/auth.tsx`); las rutas privadas usan `lib/auth-guard.tsx` y una respuesta 401 fuerza el logout.
-- Base de la API: `NEXT_PUBLIC_API_BASE` (nunca escribas la URL directamente en el código).
+- Base de la API: `NEXT_PUBLIC_API_BASE` (nunca escribas la URL directamente en el código). En el backoffice vale `/backend-api`, una ruta del mismo origen que `next.config.ts` reenvía (rewrite) a `API_INTERNAL_URL`.
 
 **Backend (`services/backend`)**
 - Python 3.12, FastAPI 0.115, Pydantic 2 y Uvicorn.
@@ -45,7 +45,8 @@ No crees árboles paralelos: un frontend nuevo va en `uis/<nombre>` y un servici
 
 **Infraestructura**
 - `docker-compose.yml`: el servicio `backend` (8000) y el servicio `uis` (website 3000 + backoffice 3001) comparten la red `nexova-network`, con bind mounts y recarga en caliente.
-- Dentro de Docker, los servicios se comunican **por nombre de servicio** (`http://backend:8000`), nunca por `localhost`.
+- Dentro de Docker, los servicios se comunican **por nombre de servicio** (`http://backend:8000`), nunca por `localhost`. El navegador no resuelve ese nombre, por eso llama a `/backend-api` y el servidor de Next hace de proxy.
+- Variables en el `.env` de la raíz (plantilla: `.env.example`). `NEXT_PUBLIC_API_BASE` y `API_INTERNAL_URL` son obligatorias para el servicio `uis`. En el build de producción se pasan como `--build-arg`.
 
 ## Decisiones de arquitectura vigentes
 

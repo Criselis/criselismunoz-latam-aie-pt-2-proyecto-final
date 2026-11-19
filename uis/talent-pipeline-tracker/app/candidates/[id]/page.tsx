@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, use, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getRecordById, getNotes, addNote, deleteNote, patchRecord, replaceRecord } from "@/lib/api";
+import { friendlyError } from "@/lib/errors";
 import type { RecordOut, NoteOut, RecordPatch, RecordCreate } from "@/lib/types";
 import {
   STATUS_LABELS, STAGE_LABELS, STATUS_COLORS, STAGE_COLORS,
@@ -13,8 +14,9 @@ import {
   Header, Spinner, ChevronLeft, TrashIcon, EditIcon, CloseIcon, PlusIcon,
   MailIcon, PhoneIcon, LinkedInIcon,
 } from "@/lib/components";
+import { AuthGuard } from "@/lib/auth-guard";
 
-export default function CandidateDetailPage({
+function CandidateDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -27,6 +29,7 @@ export default function CandidateDetailPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Notes
   const [newNoteContent, setNewNoteContent] = useState("");
@@ -58,7 +61,7 @@ export default function CandidateDetailPage({
       setCandidate(candidateData);
       setNotes(notesData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar el candidato");
+      setError(friendlyError(err, "Error al cargar el candidato"));
     } finally {
       setLoading(false);
     }
@@ -87,11 +90,12 @@ export default function CandidateDetailPage({
   // Handle status/stage change
   const handlePatch = async (field: "status" | "stage", value: string) => {
     setActionLoading(`${field}-${value}`);
+    setActionError(null);
     try {
       const updated = await patchRecord(id, { [field]: value } as RecordPatch);
       setCandidate(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al actualizar");
+      setActionError(friendlyError(err, "Error al actualizar"));
     } finally {
       setActionLoading(null);
     }
@@ -110,7 +114,7 @@ export default function CandidateDetailPage({
       // Update notes count
       setCandidate((prev) => prev ? { ...prev, notes_count: prev.notes_count + 1 } : null);
     } catch (err) {
-      setNoteError(err instanceof Error ? err.message : "Error al añadir nota");
+      setNoteError(friendlyError(err, "Error al añadir nota"));
     } finally {
       setAddingNote(false);
     }
@@ -120,12 +124,13 @@ export default function CandidateDetailPage({
   const handleDeleteNote = async (noteId: string) => {
     if (!confirm("¿Eliminar esta nota?")) return;
     setActionLoading(`delete-note-${noteId}`);
+    setActionError(null);
     try {
       await deleteNote(id, noteId);
       setNotes((prev) => prev.filter((n) => n.id !== noteId));
       setCandidate((prev) => prev ? { ...prev, notes_count: prev.notes_count - 1 } : null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al eliminar nota");
+      setActionError(friendlyError(err, "Error al eliminar nota"));
     } finally {
       setActionLoading(null);
     }
@@ -141,7 +146,7 @@ export default function CandidateDetailPage({
       setCandidate(updated);
       setShowEditModal(false);
     } catch (err) {
-      setEditError(err instanceof Error ? err.message : "Error al actualizar candidato");
+      setEditError(friendlyError(err, "Error al actualizar candidato"));
     } finally {
       setEditing(false);
     }
@@ -223,33 +228,33 @@ export default function CandidateDetailPage({
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
-                {candidate.full_name}
+                {candidate?.full_name ?? "—"}
               </h1>
-              <p className="text-lg text-gray-600 mt-1">{candidate.position}</p>
+              <p className="text-lg text-gray-600 mt-1">{candidate?.position ?? "—"}</p>
 
               <div className="flex flex-wrap items-center gap-3 mt-4">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[candidate.status] || "bg-gray-100 text-gray-800"}`}>
-                  {STATUS_LABELS[candidate.status] || candidate.status}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[candidate?.status] || "bg-gray-100 text-gray-800"}`}>
+                  {STATUS_LABELS[candidate?.status] || candidate?.status || "—"}
                 </span>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${STAGE_COLORS[candidate.stage] || "bg-gray-100 text-gray-800"}`}>
-                  {STAGE_LABELS[candidate.stage] || candidate.stage}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${STAGE_COLORS[candidate?.stage] || "bg-gray-100 text-gray-800"}`}>
+                  {STAGE_LABELS[candidate?.stage] || candidate?.stage || "—"}
                 </span>
                 <span className="text-sm text-gray-400">
-                  {candidate.experience_years} años de exp.
+                  {candidate?.experience_years ?? 0} años de exp.
                 </span>
               </div>
 
               <div className="mt-4 space-y-2">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <MailIcon />
-                  <a href={`mailto:${candidate.email}`} className="text-indigo-600 hover:text-indigo-800">
-                    {candidate.email}
+                  <a href={`mailto:${candidate?.email ?? ""}`} className="text-indigo-600 hover:text-indigo-800">
+                    {candidate?.email ?? "—"}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <PhoneIcon />
-                  <a href={`tel:${candidate.phone}`} className="hover:text-indigo-600">
-                    {candidate.phone}
+                  <a href={`tel:${candidate?.phone ?? ""}`} className="hover:text-indigo-600">
+                    {candidate?.phone ?? "—"}
                   </a>
                 </div>
                 {candidate.linkedin_url && (
@@ -293,9 +298,9 @@ export default function CandidateDetailPage({
           </div>
 
           <div className="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400 flex flex-wrap gap-x-6">
-            <span>Postulado: {formatDate(candidate.applied_at)}</span>
-            <span>Actualizado: {formatDate(candidate.updated_at)}</span>
-            <span>{candidate.notes_count} nota{candidate.notes_count !== 1 ? "s" : ""}</span>
+            <span>Postulado: {candidate?.applied_at ? formatDate(candidate.applied_at) : "—"}</span>
+            <span>Actualizado: {candidate?.updated_at ? formatDate(candidate.updated_at) : "—"}</span>
+            <span>{candidate?.notes_count ?? 0} nota{candidate?.notes_count !== 1 ? "s" : ""}</span>
           </div>
         </div>
 
@@ -349,6 +354,21 @@ export default function CandidateDetailPage({
             </div>
           </div>
         </div>
+
+        {actionError && (
+          <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+            <span className="text-red-500 text-lg leading-none mt-0.5">⚠</span>
+            <div className="flex-1">
+              <p className="text-sm text-red-700">{actionError}</p>
+              <button
+                onClick={() => setActionError(null)}
+                className="mt-1 text-sm font-medium text-red-700 hover:text-red-900 underline"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Notes section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
@@ -409,13 +429,15 @@ export default function CandidateDetailPage({
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{note.content}</p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {new Date(note.created_at).toLocaleString("es-ES", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {note?.created_at
+                        ? new Date(note.created_at).toLocaleString("es-ES", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "fecha desconocida"}
                     </p>
                   </div>
                   <button
@@ -584,5 +606,13 @@ export default function CandidateDetailPage({
         </div>
       )}
     </div>
+  );
+}
+
+export default function CandidateDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <AuthGuard>
+      <CandidateDetailContent {...props} />
+    </AuthGuard>
   );
 }

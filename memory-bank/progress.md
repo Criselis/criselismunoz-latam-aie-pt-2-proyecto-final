@@ -23,6 +23,7 @@
 ## En curso
 
 - **Hito 4 — AI-driven Engineering** (`feature/agent-memory-bank`): `BRIEFING.md`, `memory-bank/`, `AGENTS.md`, `.agents/rules` y `.agents/skills`.
+- **Propuesta de arquitectura del backend** (`feature/backend-architecture-proposal`): `docs/ARCHITECTURE_PROPOSAL.md`. Propone una arquitectura en capas organizada por dominios (`domains/<dominio>/` con router, service, repository, schemas y models), rutas bajo `/api/v1`, `CORS_ORIGINS` por entorno y una migración dominio a dominio. Pendiente de revisión: si se acepta, registrar las decisiones en `techContext.md`.
 
 ## Problemas conocidos / deuda técnica
 
@@ -38,6 +39,6 @@
 
 1. Cerrar el Hito 4 con un PR a `main` y hacer el merge.
 2. Desplegar la contenerización en el VPS y reenviar el proyecto.
-3. Backend development (proyectos sobre el monorepo): Backend Architecture Proposal, Analizador de archivo de incidentes y Supplier Directory.
+3. Backend development (proyectos sobre el monorepo): Backend Architecture Proposal (redactada, pendiente de entrega), Analizador de archivo de incidentes y Supplier Directory.
 4. Architecture optimization: Frontend Performance Audit, Backend Serialization Audit y Caching.
 5. Application telemetry: plan, captura en el frontend, almacenamiento y reporte.

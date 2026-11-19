@@ -9,13 +9,13 @@ set -e
 
 echo "==> Iniciando Website (puerto 3000, dev)..."
 cd /app/website
-NEXT_PUBLIC_API_BASE="${NEXT_PUBLIC_API_BASE:-http://localhost:8000/api/v1}" \
+NEXT_PUBLIC_API_BASE="${NEXT_PUBLIC_API_BASE:?Define NEXT_PUBLIC_API_BASE en .env}" \
   npm run dev -- -p 3000 &
 WEBSITE_PID=$!
 
 echo "==> Iniciando Backoffice (puerto 3001, dev)..."
 cd /app/backoffice
-NEXT_PUBLIC_API_BASE="${NEXT_PUBLIC_API_BASE:-http://localhost:8000/api/v1}" \
+NEXT_PUBLIC_API_BASE="${NEXT_PUBLIC_API_BASE:?Define NEXT_PUBLIC_API_BASE en .env}" \
   npm run dev -- -p 3001 &
 BACKOFFICE_PID=$!
 

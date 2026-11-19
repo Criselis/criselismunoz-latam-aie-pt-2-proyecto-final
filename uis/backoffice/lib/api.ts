@@ -10,7 +10,7 @@ import type {
 } from "./types";
 import { ApiError } from "./errors";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://playground.4geeks.com/tracker/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "/backend-api";
 
 /** Read the JWT token from localStorage (client-side only). */
 function getAuthToken(): string | null {

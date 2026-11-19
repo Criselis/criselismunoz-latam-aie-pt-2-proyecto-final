@@ -48,9 +48,12 @@ services:
     env_file:
       - .env
     environment:
-      # Solo variables de infraestructura Docker (no secretos):
-      # Los frontends se conectan al backend por nombre de servicio, no localhost
-      - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE_DOCKER}
+      # URLs de la API definidas en .env (ver .env.example):
+      #   NEXT_PUBLIC_API_BASE → ruta que usa el navegador (/backend-api, mismo origen)
+      #   API_INTERNAL_URL     → destino del proxy de Next: el backend por nombre de
+      #                          servicio dentro de nexova-network (http://backend:8000)
+      - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:?Define NEXT_PUBLIC_API_BASE en .env}
+      - API_INTERNAL_URL=${API_INTERNAL_URL:?Define API_INTERNAL_URL en .env}
     volumes:
       # Bind mount del código fuente para recarga en caliente (next dev)
       - ./uis/website:/app/website

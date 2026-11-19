@@ -36,6 +36,13 @@ CMD ["start-dev.sh"]
 # ── Fase de producción ──────────────────────────────────────────────
 FROM base AS production
 
+# Next fija NEXT_PUBLIC_* y los rewrites en el build: pásalos desde .env con
+#   docker build --target production --build-arg NEXT_PUBLIC_API_BASE=... --build-arg API_INTERNAL_URL=...
+ARG NEXT_PUBLIC_API_BASE
+ARG API_INTERNAL_URL
+ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE \
+    API_INTERNAL_URL=$API_INTERNAL_URL
+
 # Construir website como proyecto independiente
 COPY website/ /app/website/
 WORKDIR /app/website

@@ -145,25 +145,25 @@ export async function getIncidents(params?: {
   if (params?.search) searchParams.set("search", params.search);
 
   const qs = searchParams.toString();
-  return request<IncidentOut[]>(`/incidents${qs ? `?${qs}` : ""}`);
+  return request<IncidentOut[]>(`/api/incidents${qs ? `?${qs}` : ""}`);
 }
 
 export async function createIncident(data: IncidentCreate): Promise<IncidentOut> {
-  return request<IncidentOut>("/incidents", {
+  return request<IncidentOut>("/api/incidents", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 export async function patchIncident(id: string, data: IncidentPatch): Promise<IncidentOut> {
-  return request<IncidentOut>(`/incidents/${id}`, {
+  return request<IncidentOut>(`/api/incidents/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 export async function transitionIncidentStatus(id: string, status: IncidentPatch["status"]): Promise<IncidentOut> {
-  return request<IncidentOut>(`/incidents/${id}/status`, {
+  return request<IncidentOut>(`/api/incidents/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
@@ -182,11 +182,11 @@ export async function getIncidentsSummary(): Promise<{
     by_category: Record<string, number>;
     by_origin: Record<string, number>;
     by_branch: Record<string, number>;
-  }>("/incidents/summary");
+  }>("/api/incidents/summary");
 }
 
 export async function deleteIncident(id: string): Promise<void> {
-  return request<void>(`/incidents/${id}`, {
+  return request<void>(`/api/incidents/${id}`, {
     method: "DELETE",
   });
 }

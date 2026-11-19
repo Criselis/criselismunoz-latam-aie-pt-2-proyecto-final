@@ -20,6 +20,7 @@ from app.routers import users as users_router
 from app.routers import profiles as profiles_router
 from app.routers import records as records_router
 from app.routers import incidents as incidents_router
+from app.routers import incidents_analysis as incidents_analysis_router
 from app.routers import inventory as inventory_router
 from app.auth import get_current_user
 from app.crud import profiles as crud_profiles
@@ -85,6 +86,7 @@ app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(profiles_router.router)
 app.include_router(records_router.router)
+app.include_router(incidents_analysis_router.router, prefix="/api")
 app.include_router(incidents_router.router, prefix="/api")
 app.include_router(inventory_router.router)
 
